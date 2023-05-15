@@ -13,6 +13,6 @@ jobs:
   docker-build-push:
     uses: "strg-at/github-workflows/.github/workflows/docker-build-push-github.yaml@v0.3.0"
     with:
-      runner: '["self-hosted, strg-infra"]'
+      runner: '["ubuntu-latest"]'
       image: ${{ inputs.context }}
       context: ${{ inputs.context }}
