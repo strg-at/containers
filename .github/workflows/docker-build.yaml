@@ -13,5 +13,5 @@ jobs:
   docker-build:
     uses: "strg-at/github-workflows/.github/workflows/docker-build.yaml@v0.3.0"
     with:
-      runner: '["self-hosted, strg-infra"]'
+      runner: '["ubuntu-latest"]'
       context: ${{ inputs.context }}
