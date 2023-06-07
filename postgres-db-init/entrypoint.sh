@@ -50,4 +50,6 @@ do
 
   printf "\e[1;32m%-6s\e[m\n" "update user privileges on database ..."
   psql --command "grant all privileges on database \"${init_db}\" to \"${POSTGRES_USER}\";"
+  printf "\e[1;32m%-6s\e[m\n" "Create default SCHEMA for user ${POSTGRES_USER}"
+  psql --dbname=${init_db} --command "CREATE SCHEMA IF NOT EXISTS \"${POSTGRES_USER}\" AUTHORIZATION \"${POSTGRES_USER}\";"
 done
