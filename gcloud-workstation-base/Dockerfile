@@ -24,6 +24,6 @@ RUN apt install \
   pre-commit \
   terraform -y
 
-RUN apt install \
-  k9s \
-  lens
+# RUN apt install \
+#   k9s \
+#   lens
