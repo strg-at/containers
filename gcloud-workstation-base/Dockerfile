@@ -25,5 +25,5 @@ RUN apt install \
   terraform -y
 
 RUN apt install \
-  k9s
+  k9s \
   lens
