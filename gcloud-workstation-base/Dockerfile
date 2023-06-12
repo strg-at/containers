@@ -1,4 +1,4 @@
-# As checked here https://console.cloud.google.com/artifacts/docker/cloud-workstations-images/us-central1/predefined/code-oss 
+# As checked here https://console.cloud.google.com/artifacts/docker/cloud-workstations-images/us-central1/predefined/code-oss
 # there is no versionning so I will keep it on latest version
 FROM us-central1-docker.pkg.dev/cloud-workstations-images/predefined/code-oss:latest
 
@@ -14,16 +14,16 @@ RUN sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/bin
 
 #other deps
 #   kubectl already installed
-#   kubectl \  
+#   kubectl \
 
-RUN apt install \
+RUN apt install -y \
   flux \
   golang-go \
   kind \
   kustomize \
   pre-commit \
-  terraform -y
+  terraform
 
-# RUN apt install \
-#   k9s \
-#   lens
+RUN apt install -y \
+  k9s \
+  lens
