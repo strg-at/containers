@@ -11,9 +11,6 @@
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
 
-[![pre-commit][pre-commit-shield]][pre-commit-url]
-[![taskfile][taskfile-shield]][taskfile-url]
-
 # gcloud-workstation-base
 
 This is basic config for cloud workstation image used for development under docker container with preinstalled commands.
@@ -23,19 +20,10 @@ This is basic config for cloud workstation image used for development under dock
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [ENV](#env)
 - [How to test](#how-to-test)
-- [Notice](#notice)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 </details>
-
-## ENV
-
-|     | Description |
-| :-- | :---------- |
-
-| (\*) required
 
 ## How to test
 
@@ -51,18 +39,11 @@ run gcloud-workstation-base container
 docker run --rm -it --name gcloud-workstation-base gcloud-workstation-base
 ```
 
-## Notice
-
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 
 <!-- Links -->
 
 <!-- Badges -->
-
-[pre-commit-shield]: https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&style=for-the-badge
-[pre-commit-url]: https://github.com/pre-commit/pre-commit
-[taskfile-url]: https://taskfile.dev/
-[taskfile-shield]: https://img.shields.io/badge/Taskfile-Enabled-brightgreen?logoColor=white&style=for-the-badge
 
 <!-- TBD -->
