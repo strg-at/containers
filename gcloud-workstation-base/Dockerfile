@@ -2,7 +2,7 @@
 # there is no versionning so I will keep it on latest version
 FROM us-central1-docker.pkg.dev/cloud-workstations-images/predefined/code-oss:latest
 
-LABEL name=@strg-at/postgres-db-init
+LABEL name=@strg-at/gcloud-workstation-base
 LABEL maintainer=STRG.
 
 # Easy install of flux devenv dependencies, see  https://docs.wakemeops.com/
