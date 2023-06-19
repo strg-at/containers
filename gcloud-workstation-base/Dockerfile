@@ -18,12 +18,23 @@ RUN sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/bin
 
 RUN apt install -y \
   flux \
-  golang-go \
   kind \
   kustomize \
   pre-commit \
-  terraform
+  terraform \
+  tflint \
+  terraform-docs
 
 RUN apt install -y \
   k9s \
   lens
+
+# git installation
+RUN apt install -y software-properties-common
+RUN add-apt-repository ppa:git-core/ppa -y && apt-get update
+RUN apt install -y git
+
+# go
+RUN curl -OL https://golang.org/dl/go1.20.4.linux-amd64.tar.gz && \
+  tar -C /usr/local -xvf go1.20.4.linux-amd64.tar.gz && \
+  ln -s  /usr/local/go/bin/go  /usr/bin/go
