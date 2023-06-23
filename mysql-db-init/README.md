@@ -71,14 +71,14 @@ mysql> SHOW DATABASES;
 
 ## Notice
 
-Modified version of onedr0ps [MYSQL-initdb][onedr0p-mysql-db-init] for MySQL (tested up to version 8.0).
+Modified version of onedr0ps [MYSQL-initdb][onedr0p-postgres-db-init] for MySQL (tested up to version 8.0).
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 
 <!-- Links -->
 
-[onedr0p-mysql-db-init]: https://github.com/onedr0p/containers/tree/main/apps/MYSQL-initdb
+[onedr0p-postgres-db-init]: https://github.com/onedr0p/containers/tree/main/apps/postgres-initdb
 
 <!-- Badges -->
 
