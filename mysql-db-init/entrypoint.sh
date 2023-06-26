@@ -1,68 +1,83 @@
 #!/usr/bin/env bash
 
-export MYSQLHOST="${MYSQL_HOST}"
-export MYSQLPASSWORD="${MYSQL_SUPER_PASS}"
+export MYSQL_HOST="${MYSQL_HOST}"
+export MYSQL_ROOT_USER="${MYSQL_SUPER_USER}"
+export MYSQL_ROOT_PASSWORD="${MYSQL_SUPER_PASS}"
 
-if [[ -z "${MYSQLHOST}" || -z "${MYSQLPASSWORD}" || -z "${MYSQL_USER}" || -z "${MYSQL_PASS}" || -z "${MYSQL_DB}" ]]; then
+if [[ -z "${MYSQL_HOST}" || -z "${MYSQL_ROOT_USER}"|| -z "${MYSQL_ROOT_PASSWORD}" || -z "${MYSQL_USER}" || -z "${MYSQL_PASS}" || -z "${MYSQL_DB}" ]]; then
   printf "\e[1;32m%-6s\e[m\n" "environment variables missing ..."
   exit 1
 fi
 
-until mysqladmin --user=root --password=${MYSQLPASSWORD} --protocol tcp ping -h ${MYSQLHOST} 2>/dev/null
+until
+  mysqladmin \
+    --user=${MYSQL_SUPER_USER} \
+    --password=${MYSQL_ROOT_PASSWORD} \
+    --protocol tcp \
+    ping -h ${MYSQL_HOST}
 do
-  printf "\e[1;32m%-6s\e[m\n" "waiting for host '${MYSQLHOST}' ..."
+  printf "\e[1;32m%-6s\e[m\n" "waiting for host '${MYSQL_HOST}' ..."
   sleep 1
 done
 
 user_exists=$(\
-  mysql --user=root \
-        --password=${MYSQLPASSWORD} \
-        --protocol tcp -se "SELECT 1 FROM mysql.user WHERE user = '${MYSQL_USER}';" \
-        2>/dev/null | xargs
+  mysql \
+    --user=${MYSQL_SUPER_USER} \
+    --password=${MYSQL_ROOT_PASSWORD} \
+    --protocol tcp \
+    -e "SELECT 1 FROM mysql.user WHERE user = '${MYSQL_USER}';"
 )
 
 if [[ -z "${user_exists}" ]]; then
   printf "\e[1;32m%-6s\e[m\n" "create database user ${MYSQL_USER} ..."
-  mysql --user=root \
-        --password=${MYSQLPASSWORD} \
-        --protocol tcp \
-        -e "CREATE USER ${MYSQL_USER}@'%' IDENTIFIED BY '${MYSQL_PASS}';" \
-        2>/dev/null
+  mysql \
+    --user=${MYSQL_SUPER_USER} \
+    --password=${MYSQL_ROOT_PASSWORD} \
+    --protocol tcp \
+    -e "CREATE USER ${MYSQL_USER}@'%' IDENTIFIED BY '${MYSQL_PASS}';"
 else
   printf "\e[1;32m%-6s\e[m\n" "database user exists, skipping creation ..."
 fi
 
+printf "\e[1;32m%-6s\e[m\n" "update database user password ..."
+mysql \
+  --user=${MYSQL_SUPER_USER} \
+  --password=${MYSQL_ROOT_PASSWORD} \
+  --protocol tcp \
+  -e "ALTER USER ${MYSQL_USER}@'%' IDENTIFIED BY '${MYSQL_PASS}';"
+
 for init_db in ${MYSQL_DB}
 do
   database_exists=$(\
-    mysql --user=root \
-          --password="${MYSQLPASSWORD}" \
-          --protocol tcp \
-          -e "SHOW DATABASES LIKE '${init_db}';" \
-          2>/dev/null
+    mysql \
+    --user=${MYSQL_SUPER_USER} \
+    --password=${MYSQL_ROOT_PASSWORD} \
+    --protocol tcp \
+      -e "SHOW DATABASES LIKE '${init_db}';" \
   )
 
   if [[ -z "${database_exists}" ]]; then
     printf "\e[1;32m%-6s\e[m\n" "create database ${init_db} ..."
-    mysql --user=root \
-          --password=${MYSQLPASSWORD} \
-          --protocol tcp \
-          -e "CREATE DATABASE ${init_db};" \
-          2>/dev/null
+    mysql \
+      --user=${MYSQL_SUPER_USER} \
+      --password=${MYSQL_ROOT_PASSWORD} \
+      --protocol tcp \
+      -e "CREATE DATABASE ${init_db};"
   else
     printf "\e[1;32m%-6s\e[m\n" "database exists, skipping creation ..."
   fi
 
-  printf "\e[1;32m%-6s\e[m\n" "update user privileges on database ..."
-  mysql --user=root \
-        --password=${MYSQLPASSWORD} \
-        --protocol tcp \
-        -e "GRANT ALL PRIVILEGES ON ${init_db}.* TO '${MYSQL_USER}'@'%';" \
-        2>/dev/null
-
-  mysql --user=root \
-        --password=${MYSQLPASSWORD} \
-        --protocol tcp \
-        -e "FLUSH PRIVILEGES;" \
-        2>/dev/null
+  printf "\e[1;32m%-6s\e[m\n" "grant all privileges on ${init_db} to user ${MYSQL_USER} ..."
+  mysql \
+    --user=${MYSQL_SUPER_USER} \
+    --password=${MYSQL_ROOT_PASSWORD} \
+    --protocol tcp \
+    -e "GRANT ALL PRIVILEGES ON ${init_db}.* TO ${MYSQL_USER}@'%';"
 done
+
+printf "\e[1;32m%-6s\e[m\n" "flush privileges ..."
+mysql \
+  --user=${MYSQL_SUPER_USER} \
+  --password=${MYSQL_ROOT_PASSWORD} \
+  --protocol tcp \
+  -e "FLUSH PRIVILEGES;"
