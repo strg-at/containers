@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 
 export MYSQL_HOST="${MYSQL_HOST}"
-export MYSQL_ROOT_USER="${MYSQL_SUPER_USER}"
 export MYSQL_ROOT_PASSWORD="${MYSQL_SUPER_PASS}"
 
-if [[ -z "${MYSQL_HOST}" || -z "${MYSQL_ROOT_USER}"|| -z "${MYSQL_ROOT_PASSWORD}" || -z "${MYSQL_USER}" || -z "${MYSQL_PASS}" || -z "${MYSQL_DB}" ]]; then
+if [[ -z "${MYSQL_HOST}" || -z "${MYSQL_SUPER_USER}" || -z "${MYSQL_ROOT_PASSWORD}" || -z "${MYSQL_USER}" || -z "${MYSQL_PASS}" || -z "${MYSQL_DB}" ]]; then
   printf "\e[1;32m%-6s\e[m\n" "environment variables missing ..."
   exit 1
 fi
