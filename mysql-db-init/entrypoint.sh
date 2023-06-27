@@ -10,6 +10,7 @@ fi
 
 until
   mysqladmin \
+    --host=${MYSQL_HOST} \
     --user=${MYSQL_SUPER_USER} \
     --password=${MYSQL_ROOT_PASSWORD} \
     --protocol tcp \
@@ -21,6 +22,7 @@ done
 
 user_exists=$(\
   mysql \
+    --host=${MYSQL_HOST} \
     --user=${MYSQL_SUPER_USER} \
     --password=${MYSQL_ROOT_PASSWORD} \
     --protocol tcp \
@@ -30,6 +32,7 @@ user_exists=$(\
 if [[ -z "${user_exists}" ]]; then
   printf "\e[1;32m%-6s\e[m\n" "create database user ${MYSQL_USER} ..."
   mysql \
+    --host=${MYSQL_HOST} \
     --user=${MYSQL_SUPER_USER} \
     --password=${MYSQL_ROOT_PASSWORD} \
     --protocol tcp \
@@ -40,6 +43,7 @@ fi
 
 printf "\e[1;32m%-6s\e[m\n" "update database user password ..."
 mysql \
+  --host=${MYSQL_HOST} \
   --user=${MYSQL_SUPER_USER} \
   --password=${MYSQL_ROOT_PASSWORD} \
   --protocol tcp \
@@ -49,6 +53,7 @@ for init_db in ${MYSQL_DB}
 do
   database_exists=$(\
     mysql \
+    --host=${MYSQL_HOST} \
     --user=${MYSQL_SUPER_USER} \
     --password=${MYSQL_ROOT_PASSWORD} \
     --protocol tcp \
@@ -58,6 +63,7 @@ do
   if [[ -z "${database_exists}" ]]; then
     printf "\e[1;32m%-6s\e[m\n" "create database ${init_db} ..."
     mysql \
+      --host=${MYSQL_HOST} \
       --user=${MYSQL_SUPER_USER} \
       --password=${MYSQL_ROOT_PASSWORD} \
       --protocol tcp \
@@ -68,6 +74,7 @@ do
 
   printf "\e[1;32m%-6s\e[m\n" "grant all privileges on ${init_db} to user ${MYSQL_USER} ..."
   mysql \
+    --host=${MYSQL_HOST} \
     --user=${MYSQL_SUPER_USER} \
     --password=${MYSQL_ROOT_PASSWORD} \
     --protocol tcp \
@@ -76,6 +83,7 @@ done
 
 printf "\e[1;32m%-6s\e[m\n" "flush privileges ..."
 mysql \
+  --host=${MYSQL_HOST} \
   --user=${MYSQL_SUPER_USER} \
   --password=${MYSQL_ROOT_PASSWORD} \
   --protocol tcp \
