@@ -25,6 +25,8 @@ user_exists=$(\
 if [[ -z "${user_exists}" ]]; then
   printf "\e[1;32m%-6s\e[m\n" "create database user ${POSTGRES_USER} ..."
   createuser "${POSTGRES_USER}"
+  printf "\e[1;32m%-6s\e[m\n" "update super user privileges on role ..."
+  psql --command "GRANT ${POSTGRES_USER} TO ${POSTGRES_SUPER_USER};"
 else
   printf "\e[1;32m%-6s\e[m\n" "database user exists, skipping creation ..."
 fi
