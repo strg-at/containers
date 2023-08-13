@@ -17,15 +17,16 @@ database (schema) initialization helper
 
 ## ENV
 
-|                         | Description             |
-| :---------------------- | :---------------------- |
-| **POSTGRES_HOST**       | postgres host           |
-| **POSTGRES_SUPER_USER** | postgres admin user     |
-| **POSTGRES_SUPER_PASS** | postgres admin password |
-| **POSTGRES_SUPER_DB**   | postgres admin db       |
-| **POSTGRES_USER**       | postgres user           |
-| **POSTGRES_PASS**       | postgres password       |
-| **POSTGRES_DB**         | postgres database       |
+|                                | Description                                    |
+| :----------------------------- | :--------------------------------------------- |
+| **POSTGRES_HOST**              | postgres host                                  |
+| **POSTGRES_SUPER_USER**        | postgres admin user                            |
+| **POSTGRES_SUPER_PASS**        | postgres admin password                        |
+| **POSTGRES_SUPER_DB**          | postgres admin db                              |
+| **POSTGRES_USER**              | postgres user                                  |
+| **POSTGRES_PASS**              | postgres password                              |
+| **POSTGRES_DB**                | postgres database                              |
+| **CREATE_EXTENSION_UUID_OSSP** | create extension uuid-ossp (optional, boolean) |
 
 | (\*) required
 
