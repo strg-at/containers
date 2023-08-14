@@ -17,15 +17,16 @@ database (schema) initialization helper
 
 ## ENV
 
-|                         | Description             |
-| :---------------------- | :---------------------- |
-| **POSTGRES_HOST**       | postgres host           |
-| **POSTGRES_SUPER_USER** | postgres admin user     |
-| **POSTGRES_SUPER_PASS** | postgres admin password |
-| **POSTGRES_SUPER_DB**   | postgres admin db       |
-| **POSTGRES_USER**       | postgres user           |
-| **POSTGRES_PASS**       | postgres password       |
-| **POSTGRES_DB**         | postgres database       |
+|                                  | Description                                    |
+| :------------------------------- | :--------------------------------------------- |
+| **POSTGRES_HOST**                | postgres host                                  |
+| **POSTGRES_SUPER_USER**          | postgres admin user                            |
+| **POSTGRES_SUPER_PASS**          | postgres admin password                        |
+| **POSTGRES_SUPER_DB**            | postgres admin db                              |
+| **POSTGRES_USER**                | postgres user                                  |
+| **POSTGRES_PASS**                | postgres password                              |
+| **POSTGRES_DB**                  | postgres database                              |
+| **POSTGRES_EXTENSION_UUID_OSSP** | create extension uuid-ossp (optional, boolean) |
 
 | (\*) required
 
@@ -57,6 +58,7 @@ docker run --rm -it --name db-init \
   -e POSTGRES_USER=testing \
   -e POSTGRES_PASS=testing \
   -e POSTGRES_DB=testing \
+  -e POSTGRES_EXTENSION_UUID_OSSP=true \
   db-init
 ```
 
@@ -71,6 +73,13 @@ list user and database
 ```console
 postgres=# \du
 postgres=# \l
+```
+
+list installed extensions on db
+
+```console
+postgres=# \c testing
+postgres=# \dx
 ```
 
 ## Notice

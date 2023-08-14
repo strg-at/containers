@@ -32,7 +32,7 @@ else
 fi
 
 printf "\e[1;32m%-6s\e[m\n" "update database user password ..."
-psql --command "alter user \"${POSTGRES_USER}\" with encrypted password '${POSTGRES_PASS}';"
+psql --command "ALTER USER ${POSTGRES_USER} WITH ENCRYPTED PASSWORD '${POSTGRES_PASS}';"
 
 for init_db in ${POSTGRES_DB}
 do
@@ -51,7 +51,12 @@ do
   fi
 
   printf "\e[1;32m%-6s\e[m\n" "update user privileges on database ..."
-  psql --command "grant all privileges on database \"${init_db}\" to \"${POSTGRES_USER}\";"
-  printf "\e[1;32m%-6s\e[m\n" "Create default SCHEMA for user ${POSTGRES_USER}"
-  psql --dbname=${init_db} --command "CREATE SCHEMA IF NOT EXISTS \"${POSTGRES_USER}\" AUTHORIZATION \"${POSTGRES_USER}\";"
+  psql --command "GRANT ALL PRIVILEGES ON DATABASE ${init_db} TO ${POSTGRES_USER};"
+  printf "\e[1;32m%-6s\e[m\n" "create schema ${POSTGRES_USER} for user ${POSTGRES_USER}"
+  psql --dbname=${init_db} --command "CREATE SCHEMA IF NOT EXISTS ${POSTGRES_USER} AUTHORIZATION ${POSTGRES_USER};"
+
+  if [[ "${POSTGRES_EXTENSION_UUID_OSSP}" == "true" ]]; then
+    printf "\e[1;32m%-6s\e[m\n" "create extension uuid-ossp on ${init_db} with schema ${POSTGRES_USER} ..."
+    psql --dbname=${init_db} --command "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\" WITH SCHEMA ${POSTGRES_USER};"
+  fi
 done
