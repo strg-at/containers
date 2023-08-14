@@ -55,8 +55,8 @@ do
   printf "\e[1;32m%-6s\e[m\n" "create schema ${POSTGRES_USER} for user ${POSTGRES_USER}"
   psql --dbname=${init_db} --command "CREATE SCHEMA IF NOT EXISTS ${POSTGRES_USER} AUTHORIZATION ${POSTGRES_USER};"
 
-  if [[ "${CREATE_EXTENSION_UUID_OSSP}" == "true" ]]; then
-    printf "\e[1;32m%-6s\e[m\n" "create extension uuid-ossp in ${init_db} ..."
-    psql --dbname=${init_db} --command "CREATE EXTENSION IF NOT EXISTS "uuid-ossp";"
+  if [[ "${POSTGRES_EXTENSION_UUID_OSSP}" == "true" ]]; then
+    printf "\e[1;32m%-6s\e[m\n" "create extension uuid-ossp on ${init_db} with schema ${POSTGRES_USER} ..."
+    psql --dbname=${init_db} --command "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\" WITH SCHEMA ${POSTGRES_USER};"
   fi
 done
