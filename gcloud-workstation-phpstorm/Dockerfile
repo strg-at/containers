@@ -25,7 +25,4 @@ RUN apt install -y \
   terraform-docs \
   tflint
 
-COPY 300_custom-user-settings.sh /etc/workstation-startup.d/
-RUN chmod +x /etc/workstation-startup.d/300_custom-user-settings.sh
-
 RUN apt-get clean
