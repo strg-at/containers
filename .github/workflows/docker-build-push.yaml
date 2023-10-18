@@ -4,15 +4,15 @@ name: build and push docker image
 on:
   workflow_dispatch:
     inputs:
-      context:
-        description: "app folder with Dockerfile, f.e. postgres-db-init"
+      path:
+        description: "path to Dockerfile, f.e. postgres-db-init"
         required: true
         type: string
 
 jobs:
   docker-build-push:
-    uses: "strg-at/github-workflows/.github/workflows/docker-build-push-github.yaml@v0.3.0"
+    uses: "strg-at/github-workflows/.github/workflows/docker-build-push-github.yaml@v0.13.0"
     with:
       runner: '["ubuntu-latest"]'
-      image: ${{ inputs.context }}
-      context: ${{ inputs.context }}
+      subpath: ${{ inputs.path }}
+      file: ${{ inputs.path }}
