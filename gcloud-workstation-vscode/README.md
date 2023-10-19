@@ -11,7 +11,7 @@
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
 
-# gcloud-workstation-base
+# gcloud-workstation-vscode
 
 This is basic config for cloud workstation image used for development under docker container with preinstalled commands.
 
@@ -27,17 +27,21 @@ This is basic config for cloud workstation image used for development under dock
 
 ## How to test
 
-build docker container
+build container
 
 ```console
-docker build -t gcloud-workstation-base ./gcloud-workstation-base
+docker buildx build -t gcloud-workstation-vscode ./gcloud-workstation-vscode
 ```
 
-run gcloud-workstation-base container
+run container
 
 ```console
-docker run --rm -it --name gcloud-workstation-base gcloud-workstation-base
+docker run --rm -it -p 2022:22 -p 8080:80 --privileged --name gcloud-workstation-vscode gcloud-workstation-vscode
 ```
+
+access IDE
+
+vscode is accessible via [localhost:8080](http://localhost:8080).
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
@@ -45,5 +49,3 @@ docker run --rm -it --name gcloud-workstation-base gcloud-workstation-base
 <!-- Links -->
 
 <!-- Badges -->
-
-<!-- TBD -->
