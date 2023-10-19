@@ -3,15 +3,25 @@ FROM europe-west3-docker.pkg.dev/cloud-workstations-images/predefined/phpstorm@s
 
 # Easy install of flux devenv dependencies, see  https://docs.wakemeops.com/
 RUN curl -sSL https://raw.githubusercontent.com/upciti/wakemeops/main/assets/install_repository | sudo bash
-RUN apt-get update
+RUN apt update
 
 # base apps
 RUN apt install -y \
   direnv \
-  git \
+  docker-ce \
+  docker-ce-cli \
+  containerd.io \
+  docker-buildx-plugin \
+  docker-compose-plugin \
   golang-go \
   go-task \
-  pre-commit
+  htop \
+  pre-commit \
+  software-properties-common \
+  sops \
+  zsh \
+  zsh-autosuggestions \
+  zsh-syntax-highlighting
 
 # infra
 RUN apt install -y \
@@ -20,9 +30,11 @@ RUN apt install -y \
   kubectl \
   kustomize \
   k9s \
-  lens \
   terraform \
   terraform-docs \
   tflint
+
+# git
+RUN add-apt-repository ppa:git-core/ppa -y && apt update && apt install -y git
 
 RUN apt-get clean
