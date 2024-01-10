@@ -24,6 +24,6 @@ if test -f "$OVPN_CONFIG_FILE"; then
       exit 1
     fi
 else
-    echo "The OpenVPN configuration file is missing. Please make sure that it exists in the home directory of the "user" user as openvpn-client.ovpn."
+    echo "The OpenVPN configuration file is missing. Please make sure that it exists in the home directory of the \"user\" user as openvpn-client.ovpn."
     exit 1
 fi
