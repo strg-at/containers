@@ -38,10 +38,9 @@ RUN apt install -y \
 # git
 RUN add-apt-repository ppa:git-core/ppa -y && apt update && apt install -y git
 
-# Copy of the openvpn automatic startup script (owned by root, can't be deleted by mistake)
+# openvpn
 COPY start-vpn.sh /etc/workstation-startup.d/999_start-vpn.sh
-
-# Create symlink to the openvpn startup script for manual usage
+RUN chmod +x /etc/workstation-startup.d/999_start-vpn.sh
 RUN ln -s /etc/workstation-startup.d/999_start-vpn.sh /home/user/start-vpn.sh
 
 RUN apt-get clean
