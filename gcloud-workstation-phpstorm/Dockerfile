@@ -41,6 +41,6 @@ RUN add-apt-repository ppa:git-core/ppa -y && apt update && apt install -y git
 # openvpn
 COPY start-vpn.sh /etc/workstation-startup.d/999_start-vpn.sh
 RUN chmod +x /etc/workstation-startup.d/999_start-vpn.sh
-RUN ln -s /etc/workstation-startup.d/999_start-vpn.sh /home/user/start-vpn.sh
+RUN ln -s /etc/workstation-startup.d/999_start-vpn.sh /usr/local/bin/start-vpn
 
 RUN apt-get clean
