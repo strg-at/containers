@@ -16,6 +16,7 @@ RUN apt install -y \
   golang-go \
   go-task \
   htop \
+  openvpn \
   pre-commit \
   software-properties-common \
   sops \
@@ -36,5 +37,10 @@ RUN apt install -y \
 
 # git
 RUN add-apt-repository ppa:git-core/ppa -y && apt update && apt install -y git
+
+# openvpn
+COPY start-vpn.sh /etc/workstation-startup.d/999_start-vpn.sh
+RUN chmod +x /etc/workstation-startup.d/999_start-vpn.sh
+RUN ln -s /etc/workstation-startup.d/999_start-vpn.sh /home/user/start-vpn.sh
 
 RUN apt-get clean
