@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       path:
-        description: "path to Dockerfile, f.e. postgres-db-init"
+        description: "path to directory containing the Dockerfile file, f.e. postgres-db-init"
         required: true
         type: string
 
@@ -15,4 +15,5 @@ jobs:
     with:
       runner: '["ubuntu-latest"]'
       subpath: ${{ inputs.path }}
-      file: ${{ inputs.path }}
+      file: ${{ inputs.path }}/Dockerfile
+      context: ${{ inputs.path }}
