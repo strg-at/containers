@@ -8,3 +8,5 @@ RUN apt update && \
       ca-certificates \
       curl \
       git
+
+USER runner
