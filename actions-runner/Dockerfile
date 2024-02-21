@@ -7,6 +7,7 @@ RUN apt update && \
     apt install -y \
       ca-certificates \
       curl \
+      file \
       git
 
 USER runner
