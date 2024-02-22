@@ -11,9 +11,12 @@ on:
 
 jobs:
   docker-build-push:
-    uses: "strg-at/github-workflows/.github/workflows/docker-build-push-github.yaml@v0.13.0"
+    uses: "strg-at/github-workflows/.github/workflows/docker-build-push-github.yaml@v1.3.2"
     with:
       runner: '["ubuntu-latest"]'
       subpath: ${{ inputs.path }}
       file: ${{ inputs.path }}/Dockerfile
       context: ${{ inputs.path }}
+      tags: |
+        ${{ github.sha }}
+        type=raw, value=rolling
