@@ -1,12 +1,36 @@
 # https://console.cloud.google.com/artifacts/docker/cloud-workstations-images/us-central1/predefined/code-oss
-FROM europe-west3-docker.pkg.dev/cloud-workstations-images/predefined/code-oss@sha256:5c9850ee00948ecbbb639cec368598352a9cff3ca7f07380a6c33f50c7d78343
+FROM europe-west3-docker.pkg.dev/cloud-workstations-images/predefined/code-oss:latest as base
 
-# Easy install of flux devenv dependencies, see  https://docs.wakemeops.com/
+FROM ubuntu:22.04
+
+# we use the /home directory in a persistent way
+VOLUME ["/home/"]
+
+# copy necessary folders and files from the official base image
+COPY --from=base /google /google
+COPY --from=base /etc/workstation-startup.d/ /etc/workstation-startup.d/
+COPY --from=base /opt/code-oss /opt/code-oss
+COPY --from=base /usr/bin/workstation-startup /usr/bin/workstation-startup
+
+# installing pre-requirements
+RUN apt update && apt install -y \
+    ca-certificates gpg sudo curl
+
+# preparing docker installation
+RUN install -m 0755 -d /etc/apt/keyrings \
+  && curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc \
+  && chmod a+r /etc/apt/keyrings/docker.asc \
+  && echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# easy install of flux devenv dependencies, see  https://docs.wakemeops.com/
 RUN curl -sSL https://raw.githubusercontent.com/upciti/wakemeops/main/assets/install_repository | sudo bash
-RUN apt update
 
 # base apps
-RUN apt install -y \
+RUN apt update && apt install -y \
+  ca-certificates \
   direnv \
   docker-ce \
   docker-ce-cli \
@@ -15,8 +39,12 @@ RUN apt install -y \
   docker-compose-plugin \
   golang-go \
   go-task \
+  gpg \
   htop \
   openvpn \
+  openssh-client \
+  openssh-server \
+  openssh-sftp-server \
   pre-commit \
   software-properties-common \
   sops \
@@ -43,6 +71,11 @@ COPY start-vpn.sh /etc/workstation-startup.d/999_start-vpn.sh
 RUN chmod +x /etc/workstation-startup.d/999_start-vpn.sh
 RUN ln -s /etc/workstation-startup.d/999_start-vpn.sh /usr/local/bin/start-vpn
 
+# we keep the original sshd config from the official base image
+COPY --from=base /etc/ssh/sshd_config /etc/ssh/sshd_config
+
 RUN apt-get clean
 
 EXPOSE 80
+
+ENTRYPOINT [ "/google/scripts/entrypoint.sh" ]
