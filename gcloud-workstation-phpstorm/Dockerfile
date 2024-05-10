@@ -46,6 +46,7 @@ RUN apt update && apt install -y \
   pre-commit \
   software-properties-common \
   sops \
+  vim \
   zsh \
   zsh-autosuggestions \
   zsh-syntax-highlighting
@@ -64,13 +65,18 @@ RUN apt install -y \
 # git
 RUN add-apt-repository ppa:git-core/ppa -y && apt update && apt install -y git
 
+# strg scripts
+COPY scripts/*.sh /etc/workstation-startup.d/
+RUN chmod +x /etc/workstation-startup.d/*.sh
+
 # openvpn
-COPY start-vpn.sh /etc/workstation-startup.d/999_start-vpn.sh
-RUN chmod +x /etc/workstation-startup.d/999_start-vpn.sh
 RUN ln -s /etc/workstation-startup.d/999_start-vpn.sh /usr/local/bin/start-vpn
 
 # we keep the original sshd config from the official base image
 COPY --from=base /etc/ssh/sshd_config /etc/ssh/sshd_config
+
+# symlink for task binary
+RUN ln -s /usr/bin/go-task /usr/bin/task
 
 RUN apt-get clean
 
