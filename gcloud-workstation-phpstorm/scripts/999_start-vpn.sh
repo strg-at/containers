@@ -8,7 +8,7 @@ OVPN_CONFIG_FILE=/home/user/openvpn-client.ovpn
 sudo pkill -9 openvpn 2>/dev/null
 
 # Cleaning up any existing log file before attempting a new connection
-sudo rm /tmp/openvpn.log
+sudo rm /tmp/openvpn.log || true
 
 # We check if the OpenVPN configuration file is present. If it is
 if test -f "$OVPN_CONFIG_FILE"; then
