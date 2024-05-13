@@ -39,3 +39,13 @@ else
 fi
 
 sudo -u user dockerd-rootless.sh --iptables=false &>/dev/null & disown # Start the rootless docker daemon in the background
+
+# If the /home/user/docker directory exists, it implies that the data has already been moved
+if [ -d /home/user/docker ]; then
+    pkill -9 dockerd # Stop the docker daemon
+    pkill -9 containerd # Stop the containerd daemon
+    rm -rf /var/lib/docker || true # Remove the /var/lib/docker directory
+    sed -i 's/\/var\/lib\/docker/\/home\/user\/docker/g' /var/run/docker/containerd/containerd.toml || true # Update the containerd daemon configuration file
+    /usr/bin/dockerd -p /var/run/dockerd.pid --data-root /home/user/docker &>/dev/null & disown # Start the docker daemon in the background
+    containerd --config /home/user/docker/containerd/containerd.toml &>/dev/null & disown # Start the containerd daemon in the background
+fi

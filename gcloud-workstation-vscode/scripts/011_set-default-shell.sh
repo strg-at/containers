@@ -4,7 +4,7 @@
 chsh -s $(which zsh) root || true
 chsh -s $(which zsh) user || true
 
-cat <<EOF >/home/user/.zshrc
+cat <<'EOF' >/home/user/.zshrc
 # Set up the prompt
 
 autoload -Uz promptinit
@@ -44,7 +44,7 @@ zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
 zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
 EOF
 
-cat <<EOF >/root/.zshrc
+cat <<'EOF' >/root/.zshrc
 # Set up the prompt
 
 autoload -Uz promptinit
