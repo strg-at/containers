@@ -16,6 +16,10 @@ COPY --from=base /usr/bin/workstation-startup /usr/bin/workstation-startup
 RUN apt update && apt install -y \
     ca-certificates gpg sudo curl
 
+# preparing gsutil installation
+RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
+  && echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+
 # preparing docker installation
 RUN install -m 0755 -d /etc/apt/keyrings \
   && curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc \
@@ -37,6 +41,7 @@ RUN apt update && apt install -y \
   docker-buildx-plugin \
   docker-compose-plugin \
   golang-go \
+  google-cloud-cli \
   go-task \
   htop \
   openvpn \
