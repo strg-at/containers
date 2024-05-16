@@ -10,7 +10,6 @@ if [ -d /var/lib/docker ]; then
     rm -rf /var/lib/docker # Remove the /var/lib/docker directory
     sed -i 's/\/var\/lib\/docker/\/home\/user\/docker/g' /var/run/docker/containerd/containerd.toml # Update the containerd daemon configuration file
     /usr/bin/dockerd -p /var/run/dockerd.pid --data-root /home/user/docker &>/dev/null & disown # Start the docker daemon in the background
-    containerd --config /home/user/docker/containerd/containerd.toml &>/dev/null & disown # Start the containerd daemon in the background
 fi
 
 # If the /home/user/docker directory exists, it implies that the data has already been moved
@@ -20,5 +19,4 @@ if [ -d /home/user/docker ]; then
     rm -rf /var/lib/docker || true # Remove the /var/lib/docker directory
     sed -i 's/\/var\/lib\/docker/\/home\/user\/docker/g' /var/run/docker/containerd/containerd.toml || true # Update the containerd daemon configuration file
     /usr/bin/dockerd -p /var/run/dockerd.pid --data-root /home/user/docker &>/dev/null & disown # Start the docker daemon in the background
-    containerd --config /home/user/docker/containerd/containerd.toml &>/dev/null & disown # Start the containerd daemon in the background
 fi
