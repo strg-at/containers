@@ -76,6 +76,9 @@ RUN add-apt-repository ppa:git-core/ppa -y && apt update && apt install -y git
 COPY scripts/*.sh /etc/workstation-startup.d/
 RUN chmod +x /etc/workstation-startup.d/*.sh
 
+# containerd configuration
+COPY containerd.toml /etc/containerd/config.toml
+
 # openvpn
 RUN ln -s /etc/workstation-startup.d/999_start-vpn.sh /usr/local/bin/start-vpn
 
