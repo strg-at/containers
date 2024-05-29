@@ -16,6 +16,10 @@ COPY --from=base /usr/bin/workstation-startup /usr/bin/workstation-startup
 RUN apt update && apt install -y \
     ca-certificates gpg sudo curl
 
+# preparing gsutil installation
+RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
+  && echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+
 # preparing docker installation
 RUN install -m 0755 -d /etc/apt/keyrings \
   && curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc \
@@ -37,6 +41,7 @@ RUN apt update && apt install -y \
   docker-buildx-plugin \
   docker-compose-plugin \
   golang-go \
+  google-cloud-cli \
   go-task \
   htop \
   openvpn \
@@ -46,6 +51,7 @@ RUN apt update && apt install -y \
   pre-commit \
   software-properties-common \
   sops \
+  vim \
   zsh \
   zsh-autosuggestions \
   zsh-syntax-highlighting
@@ -64,13 +70,21 @@ RUN apt install -y \
 # git
 RUN add-apt-repository ppa:git-core/ppa -y && apt update && apt install -y git
 
+# strg scripts
+COPY scripts/*.sh /etc/workstation-startup.d/
+RUN chmod +x /etc/workstation-startup.d/*.sh
+
+# containerd configuration
+COPY containerd.toml /etc/containerd/config.toml
+
 # openvpn
-COPY start-vpn.sh /etc/workstation-startup.d/999_start-vpn.sh
-RUN chmod +x /etc/workstation-startup.d/999_start-vpn.sh
 RUN ln -s /etc/workstation-startup.d/999_start-vpn.sh /usr/local/bin/start-vpn
 
 # we keep the original sshd config from the official base image
 COPY --from=base /etc/ssh/sshd_config /etc/ssh/sshd_config
+
+# symlink for task binary
+RUN ln -s /usr/bin/go-task /usr/bin/task
 
 RUN apt-get clean
 
