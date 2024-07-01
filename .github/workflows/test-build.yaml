@@ -1,0 +1,41 @@
+---
+name: docker-build
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+    paths-ignore:
+      - .github/**
+
+concurrency:
+  group: ${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  get-changed-files:
+    permissions:
+      contents: read
+    uses: strg-at/github-workflows/.github/workflows/get-changed-files.yaml@v1.7.0
+    with:
+      runner: '["ubuntu-latest"]'
+      files: |
+        **/Dockerfile
+      matrix: true
+      dir_names: true
+
+  docker-build:
+    needs: get-changed-files
+    if: ${{ needs.get-changed-files.outputs.files != '[]'}}
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        paths: ${{fromJSON(needs.get-changed-files.outputs.files)}}
+      fail-fast: false
+    uses: strg-at/github-workflows/.github/workflows/docker-build.yaml@v1.7.0
+    with:
+      runner: '["ubuntu-latest"]'
+      file: ${{ matrix.paths }}/Dockerfile
+      context: ${{ matrix.paths }}
