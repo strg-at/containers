@@ -11,7 +11,7 @@ on:
 
 jobs:
   docker-build-push:
-    uses: "strg-at/github-workflows/.github/workflows/docker-build-push-github.yaml@ff86b2cf06e38a4cbc0afaaf0427a9c2549e4a62" # v1.5.2
+    uses: "strg-at/github-workflows/.github/workflows/docker-build-push-github.yaml@c3b65900e045c388e6895d74522317427453fde0" # v1.6.1
     with:
       runner: '["ubuntu-latest"]'
       subpath: ${{ inputs.path }}
