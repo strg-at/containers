@@ -95,10 +95,11 @@ RUN apt-get clean
 RUN ln -s /usr/bin/go-task /usr/bin/task
 
 # set Code OSS port to 81
-# "The port 81 is not allowed by your configuration. Allowed ports are: [22, 80, 1024-65535]"
-# if portforwarding to 81: ERROR: The workstation does not have a server running on port 81
-RUN sed -i 's/80/81/' /etc/workstation-startup.d/110_start-code-oss.sh
+# not yet supported in terraform
+# https://cloud.google.com/sdk/docs/release-notes#cloud_workstations_2
+#RUN sed -i 's/80/81/' /etc/workstation-startup.d/110_start-code-oss.sh
+#EXPOSE 81
 
-EXPOSE 81
+EXPOSE 80
 
 ENTRYPOINT [ "/google/scripts/entrypoint.sh" ]
