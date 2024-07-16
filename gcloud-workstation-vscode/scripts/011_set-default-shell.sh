@@ -4,7 +4,12 @@
 chsh -s $(which zsh) root || true
 chsh -s $(which zsh) user || true
 
-cat <<'EOF' >/home/user/.zshrc
+# Hack to get the latest ruby version installed
+RUBY_VER=$(ls -alt /home/user/.local/share/gem/ruby | sed -n '2p' | cut -d ' ' -f9)
+
+# Only set the default zshrc configuration if the file doesn't exist
+if [ ! -f /root/.zshrc ]; then
+    cat <<'EOF' >/root/.zshrc
 # Set up the prompt
 
 autoload -Uz promptinit
@@ -42,9 +47,12 @@ zstyle ':completion:*' verbose true
 
 zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
 zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
+alias docker-compose='docker compose'
 EOF
+fi
 
-cat <<'EOF' >/root/.zshrc
+if [ ! -f /home/user/.zshrc ]; then
+    cat <<'EOF' >/home/user/.zshrc
 # Set up the prompt
 
 autoload -Uz promptinit
@@ -82,4 +90,10 @@ zstyle ':completion:*' verbose true
 
 zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
 zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
+
+alias docker-compose='docker compose'
 EOF
+    echo "path+=('/home/user/.local/share/gem/ruby/$RUBY_VER/bin')" >> /home/user/.zshrc
+fi
+
+chown user:user /home/user/.zshrc

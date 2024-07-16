@@ -1,5 +1,5 @@
 # https://console.cloud.google.com/artifacts/docker/cloud-workstations-images/us-central1/predefined/code-oss
-FROM europe-west3-docker.pkg.dev/cloud-workstations-images/predefined/code-oss:latest@sha256:64a761bd763a604b0885ffcc07e5e59bc231d5a3aa816f70240d4b8500fc4f92 as base
+FROM europe-west3-docker.pkg.dev/cloud-workstations-images/predefined/code-oss:latest@sha256:64a761bd763a604b0885ffcc07e5e59bc231d5a3aa816f70240d4b8500fc4f92 AS base
 
 FROM ubuntu:22.04@sha256:340d9b015b194dc6e2a13938944e0d016e57b9679963fdeb9ce021daac430221
 
@@ -41,16 +41,20 @@ RUN apt update && apt install -y \
   containerd.io \
   docker-buildx-plugin \
   docker-compose-plugin \
+  gettext-base \
   golang-go \
   google-cloud-cli \
   go-task \
   gpg \
   htop \
+  make \
   openvpn \
   openssh-client \
   openssh-server \
   openssh-sftp-server \
   pre-commit \
+  ruby \
+  ruby-dev \
   software-properties-common \
   sops \
   vim \
@@ -90,6 +94,11 @@ RUN apt-get clean
 # symlink for task binary
 RUN ln -s /usr/bin/go-task /usr/bin/task
 
-EXPOSE 80
+# set Code OSS port to 81
+# "The port 81 is not allowed by your configuration. Allowed ports are: [22, 80, 1024-65535]"
+# if portforwarding to 81: ERROR: The workstation does not have a server running on port 81
+RUN sed -i 's/80/81/' /etc/workstation-startup.d/110_start-code-oss.sh
+
+EXPOSE 81
 
 ENTRYPOINT [ "/google/scripts/entrypoint.sh" ]
