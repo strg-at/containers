@@ -40,15 +40,19 @@ RUN apt update && apt install -y \
   containerd.io \
   docker-buildx-plugin \
   docker-compose-plugin \
+  gettext-base \
   golang-go \
   google-cloud-cli \
   go-task \
   htop \
+  make \
   openvpn \
   openssh-client \
   openssh-server \
   openssh-sftp-server \
   pre-commit \
+  ruby \
+  ruby-dev \
   software-properties-common \
   sops \
   vim \

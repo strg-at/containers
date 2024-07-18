@@ -41,16 +41,20 @@ RUN apt update && apt install -y \
   containerd.io \
   docker-buildx-plugin \
   docker-compose-plugin \
+  gettext-base \
   golang-go \
   google-cloud-cli \
   go-task \
   gpg \
   htop \
+  make \
   openvpn \
   openssh-client \
   openssh-server \
   openssh-sftp-server \
   pre-commit \
+  ruby \
+  ruby-dev \
   software-properties-common \
   sops \
   vim \
@@ -89,6 +93,12 @@ RUN apt-get clean
 
 # symlink for task binary
 RUN ln -s /usr/bin/go-task /usr/bin/task
+
+# set Code OSS port to 81
+# not yet supported in terraform
+# https://cloud.google.com/sdk/docs/release-notes#cloud_workstations_2
+#RUN sed -i 's/80/81/' /etc/workstation-startup.d/110_start-code-oss.sh
+#EXPOSE 81
 
 EXPOSE 80
 
