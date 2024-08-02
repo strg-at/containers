@@ -14,7 +14,7 @@ COPY --from=base /usr/bin/workstation-startup /usr/bin/workstation-startup
 
 # installing pre-requirements
 RUN apt update && apt install -y \
-    ca-certificates gpg sudo curl
+  ca-certificates gpg sudo curl
 
 # preparing gsutil installation
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
@@ -95,11 +95,8 @@ RUN apt-get clean
 RUN ln -s /usr/bin/go-task /usr/bin/task
 
 # set Code OSS port to 81
-# not yet supported in terraform
-# https://cloud.google.com/sdk/docs/release-notes#cloud_workstations_2
-#RUN sed -i 's/80/81/' /etc/workstation-startup.d/110_start-code-oss.sh
-#EXPOSE 81
+RUN sed -i 's/80/8084/' /etc/workstation-startup.d/110_start-code-oss.sh
 
-EXPOSE 80
+EXPOSE 8084
 
 ENTRYPOINT [ "/google/scripts/entrypoint.sh" ]
