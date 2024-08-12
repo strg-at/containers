@@ -17,7 +17,7 @@ jobs:
   get-changed-files:
     permissions:
       contents: read
-    uses: strg-at/github-workflows/.github/workflows/get-changed-files.yaml@8ec249ae473c8b59ed2ca8a3836468ac3b446c5f # v1.8.1
+    uses: strg-at/github-workflows/.github/workflows/get-changed-files.yaml@d42227396c7a3608450837821e2ad3b01d0b2301 # v1.8.2
     with:
       runner: '["ubuntu-latest"]'
       files: |
@@ -34,7 +34,7 @@ jobs:
       matrix:
         paths: ${{fromJSON(needs.get-changed-files.outputs.files)}}
       fail-fast: false
-    uses: strg-at/github-workflows/.github/workflows/docker-build.yaml@8ec249ae473c8b59ed2ca8a3836468ac3b446c5f # v1.8.1
+    uses: strg-at/github-workflows/.github/workflows/docker-build.yaml@d42227396c7a3608450837821e2ad3b01d0b2301 # v1.8.2
     with:
       runner: '["ubuntu-latest"]'
       file: ${{ matrix.paths }}/Dockerfile
