@@ -30,6 +30,7 @@ jobs:
     if: ${{ needs.get-changed-files.outputs.files != '[]'}}
     permissions:
       contents: read
+      packages: read
     strategy:
       matrix:
         paths: ${{fromJSON(needs.get-changed-files.outputs.files)}}
