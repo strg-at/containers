@@ -1,7 +1,7 @@
 # https://console.cloud.google.com/artifacts/docker/cloud-workstations-images/us-central1/predefined/code-oss
 FROM europe-west3-docker.pkg.dev/cloud-workstations-images/predefined/code-oss:latest@sha256:2ba3135dba84490bab5000fc1624cc8895fec164cc7774fcd08170c22d85c171 as base
 
-FROM ubuntu:22.04@sha256:340d9b015b194dc6e2a13938944e0d016e57b9679963fdeb9ce021daac430221
+FROM ubuntu:22.04@sha256:adbb90115a21969d2fe6fa7f9af4253e16d45f8d4c1e930182610c4731962658
 
 # we use the /home directory in a persistent way
 VOLUME ["/home/"]
