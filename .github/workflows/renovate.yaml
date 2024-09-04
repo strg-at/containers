@@ -30,7 +30,7 @@ concurrency:
 
 jobs:
   renovate:
-    uses: strg-at/github-workflows/.github/workflows/run-renovate.yaml@ac385260abbb841598c1740ae222d4f1ab3c9b40 # v1.9.0
+    uses: strg-at/github-workflows/.github/workflows/run-renovate.yaml@c1b31ff6c2d848b014596b6f919336d6ae89d8de # v1.9.1
     with:
       runner: '["ubuntu-latest"]'
       configuration-file: .github/renovate-bot.json5
