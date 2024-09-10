@@ -8,5 +8,4 @@ RUN apt update && apt install -y \
     openvpn="${OPENVPN_VERSION}" && \
     apt clean
 
-COPY openvpn.sh /usr/local/bin/
-ENTRYPOINT ["bash", "/usr/local/bin/openvpn.sh"]
+ENTRYPOINT ["openvpn", "--user", "nobody", "--config", "/openvpn/server.conf"]

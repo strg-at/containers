@@ -13,7 +13,7 @@
 
 # openpvn
 
-By default, this image serves as an openvpn client but can also serve as a server by overriding the command as follows: `command: ["openvpn", "--user", "nobody", "--config", "server.conf"]`
+By default, this image serves as an openvpn server but can also serve as a client by overriding the command as follows: `command: ["openvpn", "--user", "nobody", "--config", "client.ovpn"]`
 
 STRG. minimal openvpn image
 
