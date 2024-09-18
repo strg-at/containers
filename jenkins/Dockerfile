@@ -8,4 +8,5 @@ RUN apt update && apt install rsync wget -y
 RUN wget https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 && \
     chmod 700 get-helm-3 &&\
     ./get-helm-3
+
 USER jenkins
