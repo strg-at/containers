@@ -36,12 +36,12 @@ docker buildx build -t gcloud-workstation-vscode ./gcloud-workstation-vscode
 run container
 
 ```console
-docker run --rm -it -p 2022:22 -p 8080:80 --privileged --name gcloud-workstation-vscode gcloud-workstation-vscode
+docker run --rm -it -p 2022:22 -p 8084:80 --privileged --name gcloud-workstation-vscode gcloud-workstation-vscode
 ```
 
 access IDE
 
-vscode is accessible via [localhost:8080](http://localhost:8080).
+vscode is accessible via [localhost:8084](http://localhost:8084).
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
