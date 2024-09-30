@@ -27,10 +27,10 @@ RUN apt update && apt install -y \
     php7.3 php7.3-cli \
     php8.1 php8.1-cli
 
-# install composer 1.6.5
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer --version=1.6.5
+# install latest composer version (version 2)
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer2 --2
 
-# install composer 2.2.18
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer2 --version=2.2.18
+# set php7.1 as default
+RUN update-alternatives --set php /usr/bin/php7.1
 
 USER jenkins
