@@ -1,4 +1,4 @@
-FROM docker.io/jenkins/jenkins:2.462.2-jdk17@sha256:95313257a8cddbef83c74e3d577ea139aeae30c3c014ddcaa83a72b60409bbe1
+FROM docker.io/jenkins/jenkins:2.462.2-jdk17
 USER root
 
 # prepare installation of gcloud sdk
@@ -27,8 +27,8 @@ RUN apt update && apt install -y \
     php7.3 php7.3-cli \
     php8.1 php8.1-cli
 
-# install latest composer version (version 2)
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer2 --2
+# install composer version 2.2.24 (v3 does not support PHP <7.2.5)
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer2 --version=2.2.24
 
 # set php7.1 as default
 RUN update-alternatives --set php /usr/bin/php7.1
