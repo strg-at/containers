@@ -6,7 +6,7 @@ RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -
     echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
 
 # install base packages
-RUN apt update && apt install rsync wget google-cloud-cli lsb-release -y
+RUN apt update && apt install rsync wget google-cloud-cli google-cloud-sdk-gke-gcloud-auth-plugin lsb-release -y
 
 # prepare installation of php packages
 RUN curl -fsSL https://packages.sury.org/php/apt.gpg | tee /etc/apt/trusted.gpg.d/sury.gpg > /dev/null && \
