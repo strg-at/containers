@@ -8,12 +8,12 @@ on:
         description: dry-run
         required: false
         type: string
-        default: "false"
+        default: "null"
       log-level:
         description: log-level
         required: false
         type: string
-        default: info
+        default: "debug"
   schedule:
     - cron: "0 */3 * * 1-4"
   push:
@@ -21,6 +21,7 @@ on:
       - main
     paths:
       - .github/renovate.json5
+      - .github/renovate-bot.json5
       - .github/renovate/**.json5
       - .github/workflows/renovate.yaml
 
@@ -34,8 +35,8 @@ jobs:
     with:
       runner: '["ubuntu-latest"]'
       configuration-file: .github/renovate-bot.json5
-      dry-run: ${{ inputs.dry-run || 'false' }}
-      log-level: ${{ inputs.log-level || 'info' }}
+      dry-run: ${{ inputs.dry-run || 'null' }}
+      log-level: ${{ inputs.log-level || 'debug' }}
     secrets:
       github-app-id: ${{ secrets.STRG_PUBLIC_BOT_GITHUB_APP_ID }}
       github-app-key: ${{ secrets.STRG_PUBLIC_BOT_GITHUB_PEM }}
