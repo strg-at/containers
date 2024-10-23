@@ -1,4 +1,4 @@
-FROM docker.io/jenkins/jenkins:2.462.3-jdk17@sha256:429647d4688daa3ca2520fb771a391bae8efa1e4def824b32345f13dde223227
+FROM docker.io/jenkins/jenkins:2.462.2-jdk17
 USER root
 
 # prepare installation of gcloud sdk
@@ -6,7 +6,10 @@ RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -
     echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
 
 # install base packages
-RUN apt update && apt install rsync wget google-cloud-cli google-cloud-sdk-gke-gcloud-auth-plugin lsb-release -y
+RUN apt update && apt install rsync wget python3 \
+     build-essential clang libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev \
+     curl llvm libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev \
+     liblzma-dev python3 google-cloud-cli google-cloud-sdk-gke-gcloud-auth-plugin lsb-release -y
 
 # prepare installation of php packages
 RUN curl -fsSL https://packages.sury.org/php/apt.gpg | tee /etc/apt/trusted.gpg.d/sury.gpg > /dev/null && \
@@ -34,3 +37,8 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN update-alternatives --set php /usr/bin/php7.1
 
 USER jenkins
+
+# install pyenv, python 3.6.8 and create venv
+RUN curl https://pyenv.run | bash && \
+    CC=clang ~/.pyenv/bin/pyenv install 3.6.8 && \
+    ~/.pyenv/bin/pyenv virtualenv 3.6.8 timeline-service-venv
