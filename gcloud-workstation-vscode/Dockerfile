@@ -42,7 +42,6 @@ RUN apt update && apt install -y \
   docker-buildx-plugin \
   docker-compose-plugin \
   gettext-base \
-  golang-go \
   google-cloud-cli \
   go-task \
   gpg \
@@ -58,9 +57,13 @@ RUN apt update && apt install -y \
   software-properties-common \
   sops \
   vim \
+  yq \
   zsh \
   zsh-autosuggestions \
   zsh-syntax-highlighting
+
+# install latest go-lang stable
+RUN export latest=$(curl -s "https://go.dev/VERSION?m=text" | head -n 1) && wget https://go.dev/dl/$latest.linux-amd64.tar.gz && tar -C /usr/local -xzf $latest.linux-amd64.tar.gz && ln -s /usr/local/go/bin/go /usr/bin/go
 
 # infra
 RUN apt install -y \
