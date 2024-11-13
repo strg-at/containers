@@ -1,7 +1,7 @@
 # https://console.cloud.google.com/artifacts/docker/cloud-workstations-images/us-central1/predefined/phpstorm
 FROM europe-west3-docker.pkg.dev/cloud-workstations-images/predefined/phpstorm:latest@sha256:d8228cf4afc9979ef1508b18c4ef33eec5f71f4b8452076326edb148d40216b8 as base
 
-FROM ubuntu:22.04@sha256:0e5e4a57c2499249aafc3b40fcd541e9a456aab7296681a3994d631587203f97
+FROM ubuntu:24.04@sha256:99c35190e22d294cdace2783ac55effc69d32896daaa265f0bbedbcde4fbe3e5
 
 # we use the /home directory in a persistent way
 VOLUME ["/home/"]
@@ -41,7 +41,6 @@ RUN apt update && apt install -y \
   docker-buildx-plugin \
   docker-compose-plugin \
   gettext-base \
-  golang-go \
   google-cloud-cli \
   go-task \
   htop \
@@ -56,9 +55,13 @@ RUN apt update && apt install -y \
   software-properties-common \
   sops \
   vim \
+  yq \
   zsh \
   zsh-autosuggestions \
   zsh-syntax-highlighting
+
+# install latest go-lang stable
+RUN export latest=$(curl -s "https://go.dev/VERSION?m=text" | head -n 1) && wget https://go.dev/dl/$latest.linux-amd64.tar.gz && tar -C /usr/local -xzf $latest.linux-amd64.tar.gz && ln -s /usr/local/go/bin/go /usr/bin/go
 
 # infra
 RUN apt install -y \
