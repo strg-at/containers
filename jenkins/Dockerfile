@@ -1,4 +1,4 @@
-FROM docker.io/jenkins/jenkins:2.479.1-jdk17@sha256:7ea4989040ce0840129937b339bf8c8f878c14b08991def312bdf51ca05aa358
+FROM docker.io/jenkins/jenkins:2.479.2-jdk17@sha256:e728082cd6a2710840ef7d9fdcdc93408eb488aa05d10bc92f4454254e22cc4e
 USER root
 
 # prepare installation of gcloud sdk
