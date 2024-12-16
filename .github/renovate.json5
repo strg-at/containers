@@ -6,4 +6,21 @@
     "github>strg-at/renovate-config//pre-commit/silent-automerge.json5",
     "github>strg-at/renovate-config//terraform/silent-automerge.json5",
   ],
+  packageRules: [
+    // {
+    //   description: "automergeSchedule: jenkins-plugins",
+    //   matchDatasources: ["jenkins-plugins"],
+    //   automergeSchedule: [
+    //     "after 10pm every weekday",
+    //     "before 7am every weekday",
+    //   ],
+    // },
+    {
+      description: "jenkins-plugins: disable pr and automerge",
+      matchDatasources: ["jenkins-plugins"],
+      separateMinorPatch: false,
+      automerge: false,
+      dependencyDashboardApproval: true,
+    },
+  ],
 }
