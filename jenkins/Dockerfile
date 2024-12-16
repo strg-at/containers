@@ -7,9 +7,9 @@ RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -
 
 # install base packages
 RUN apt update && apt install rsync wget python3 \
-     build-essential clang libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev \
-     curl llvm libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev \
-     liblzma-dev python3 google-cloud-cli google-cloud-sdk-gke-gcloud-auth-plugin lsb-release -y
+    build-essential clang libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev \
+    curl llvm libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev \
+    liblzma-dev python3 google-cloud-cli google-cloud-sdk-gke-gcloud-auth-plugin lsb-release -y
 
 # prepare installation of php packages
 RUN curl -fsSL https://packages.sury.org/php/apt.gpg | tee /etc/apt/trusted.gpg.d/sury.gpg > /dev/null && \
@@ -42,3 +42,7 @@ USER jenkins
 RUN curl https://pyenv.run | bash && \
     CC=clang ~/.pyenv/bin/pyenv install 3.6.8 && \
     ~/.pyenv/bin/pyenv virtualenv 3.6.8 timeline-service-venv
+
+# install plugins
+COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
+RUN jenkins-plugin-cli -f /usr/share/jenkins/ref/plugins.txt
