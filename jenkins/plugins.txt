@@ -84,7 +84,7 @@ lockable-resources:1320.v1f0dff578476
 mailer:488.v0c9639c1a_eb_3
 matrix-auth:3.2.2
 matrix-project:839.vff91cd7e3a_b_2
-metrics.jpi:4.2.21-458.vcf496cb_839e4
+metrics:4.2.21-458.vcf496cb_839e4
 mina-sshd-api-common:2.14.0-133.vcc091215a_358
 mina-sshd-api-core:2.14.0-133.vcc091215a_358
 nodejs:1.6.2
@@ -105,7 +105,7 @@ pipeline-stage-view:2.34
 pipeline-utility-steps:2.18.0
 plain-credentials:183.va_de8f1dd5a_2b_
 plugin-util-api:4.1.0
-prism-api.jpi:1.29.0-18
+prism-api:1.29.0-18
 pubsub-light:1.18
 pyenv-pipeline:2.1.2
 resource-disposer:0.24
