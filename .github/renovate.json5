@@ -6,7 +6,13 @@
     "github>strg-at/renovate-config//pre-commit/silent-automerge.json5",
     "github>strg-at/renovate-config//terraform/silent-automerge.json5",
   ],
+  // TODO: enable when automerge is possible
+  // constraintsFiltering: "strict",
+  // constraints: {
+  //   jenkins: "2.479.2"
+  // },
   packageRules: [
+    // TODO: enable when automerge is possible
     // {
     //   description: "automergeSchedule: jenkins-plugins",
     //   matchDatasources: ["jenkins-plugins"],
@@ -15,6 +21,13 @@
     //     "before 7am every weekday",
     //   ],
     // },
+    // TODO: remove when jenkins upgrade is possible
+    {
+      matchDepNames: ["docker.io/jenkins/jenkins"],
+      separateMinorPatch: false,
+      automerge: false,
+    },
+    // TODO: remove when jenkins upgrade is possible
     {
       description: "jenkins-plugins: disable pr and automerge",
       matchDatasources: ["jenkins-plugins"],
