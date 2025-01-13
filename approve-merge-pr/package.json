@@ -1,0 +1,16 @@
+{
+  "name": "approve-merge-pr",
+  "type": "module",
+  "description": "Automated GitHub pr approval and merge tool using GitHub REST API.",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "STRG.",
+  "license": "MIT",
+  "dependencies": {
+    "@octokit/core": "6.1.3"
+  }
+}
