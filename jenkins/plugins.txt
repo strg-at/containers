@@ -76,8 +76,8 @@ jquery3-api:3.7.1-2
 json-api:20241224-119.va_dca_a_b_ea_7da_5
 jsch:0.2.16-86.v42e010d9484b_
 json-path-api:2.9.0-118.v7f23ed82a_8b_8
+kubernetes:4306.vc91e951ea_eb_d
 junit:1312.v1a_235a_b_94a_31
-kubernetes:4292.v11898cf8fa_66
 kubernetes-client-api:6.10.0-240.v57880ce8b_0b_2
 kubernetes-credentials:190.v03c305394deb_
 lockable-resources:1327.ved786b_a_197e0
