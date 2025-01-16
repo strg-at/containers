@@ -56,7 +56,7 @@ github-oauth:597.ve0c3480fcb_d0
 github:1.40.0
 gson-api:2.11.0-85.v1f4e87273c33
 handy-uri-templates-2-api:2.1.8-30.v7e777411b_148
-htmlpublisher:1.36
+htmlpublisher:1.37
 instance-identity:201.vd2a_b_5a_468a_a_6
 ionicons-api:74.v93d5eb_813d5f
 jackson2-api:2.17.0-379.v02de8ec9f64c
@@ -82,11 +82,11 @@ kubernetes-client-api:6.10.0-240.v57880ce8b_0b_2
 kubernetes-credentials:190.v03c305394deb_
 lockable-resources:1320.v1f0dff578476
 mailer:488.v0c9639c1a_eb_3
-matrix-auth:3.2.2
+matrix-auth:3.2.3
 matrix-project:839.vff91cd7e3a_b_2
 metrics:4.2.21-458.vcf496cb_839e4
-mina-sshd-api-common:2.14.0-133.vcc091215a_358
-mina-sshd-api-core:2.14.0-133.vcc091215a_358
+mina-sshd-api-core:2.14.0-138.v6341ee58e1df
+mina-sshd-api-common:2.14.0-138.v6341ee58e1df
 nodejs:1.6.2
 okhttp-api:4.11.0-172.vda_da_1feeb_c6e
 pipeline-build-step:540.vb_e8849e1a_b_d8
@@ -95,9 +95,9 @@ pipeline-graph-analysis:216.vfd8b_ece330ca_
 pipeline-groovy-lib:740.va_2701257fe8d
 pipeline-input-step:495.ve9c153f6067b_
 pipeline-milestone-step:119.vdfdc43fc3b_9a_
-pipeline-model-api:2.2214.vb_b_34b_2ea_9b_83
+pipeline-model-api:2.2218.v56d0cda_37c72
 pipeline-model-definition:2.2218.v56d0cda_37c72
-pipeline-model-extensions:2.2214.vb_b_34b_2ea_9b_83
+pipeline-model-extensions:2.2218.v56d0cda_37c72
 pipeline-rest-api:2.34
 pipeline-stage-step:312.v8cd10304c27a_
 pipeline-stage-tags-metadata:2.2214.vb_b_34b_2ea_9b_83
