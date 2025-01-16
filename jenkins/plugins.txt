@@ -26,7 +26,7 @@ blueocean:1.27.16
 bootstrap5-api:5.3.3-1
 bouncycastle-api:2.30.1.78.1-248.ve27176eb_46cb_
 branch-api:2.1178.v969d9eb_c728e
-build-discarder:139.v05696a_7fe240
+build-discarder:158.vce570d01ce4c
 caffeine-api:3.1.8-133.v17b_1ff2e0599
 checks-api:2.2.1
 cloudbees-bitbucket-branch-source:888.v8e6d479a_1730
