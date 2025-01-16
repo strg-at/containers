@@ -77,7 +77,7 @@ json-api:20240303-101.v7a_8666713110
 jsch:0.2.16-86.v42e010d9484b_
 json-path-api:2.9.0-118.v7f23ed82a_8b_8
 junit:1304.vc85a_b_ca_96613
-kubernetes:4292.v11898cf8fa_66
+kubernetes:4306.vc91e951ea_eb_d
 kubernetes-client-api:6.10.0-240.v57880ce8b_0b_2
 kubernetes-credentials:190.v03c305394deb_
 lockable-resources:1320.v1f0dff578476
