@@ -51,7 +51,7 @@ font-awesome-api:6.6.0-2
 git:5.5.2
 git-client:5.0.0
 github-api:1.321-468.v6a_9f5f2d5a_7e
-github-branch-source:1797.v86fdb_4d57d43
+github-branch-source:1807.v50351eb_7dd13
 github-oauth:597.ve0c3480fcb_d0
 github:1.40.0
 gson-api:2.11.0-85.v1f4e87273c33
