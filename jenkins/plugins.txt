@@ -110,7 +110,7 @@ pubsub-light:1.18
 pyenv-pipeline:2.1.2
 resource-disposer:0.24
 scm-api:696.v778d637b_a_762
-script-security:1365.v4778ca_84b_de5
+script-security:1369.v9b_98a_4e95b_2d
 shiningpanda:0.24
 slack:751.v2e44153c8fe1
 snakeyaml-api:2.3-123.v13484c65210a_
