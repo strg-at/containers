@@ -43,7 +43,7 @@ data-tables-api:2.1.8-1
 display-url-api:2.204.vf6fddd8a_8b_e9
 docker-commons:443.v921729d5611d
 docker-workflow:580.vc0c340686b_54
-durable-task:577.v2a_8a_4b_7c0247
+durable-task:581.v299a_5609d767
 echarts-api:5.5.1-2
 eddsa-api:0.3.0-4.v84c6f0f4969e
 favorite:2.221.v19ca_666b_62f5
