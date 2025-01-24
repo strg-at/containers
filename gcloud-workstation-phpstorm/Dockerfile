@@ -14,7 +14,7 @@ COPY --from=base /usr/bin/workstation-startup /usr/bin/workstation-startup
 
 # installing pre-requirements
 RUN apt update && apt install -y \
-    ca-certificates gpg sudo curl
+  ca-certificates gpg sudo curl
 
 # preparing gsutil installation
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
@@ -29,11 +29,13 @@ RUN install -m 0755 -d /etc/apt/keyrings \
   $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-# Easy install of flux devenv dependencies, see  https://docs.wakemeops.com/
+# easy install of flux devenv dependencies, see  https://docs.wakemeops.com/
 RUN curl -sSL https://raw.githubusercontent.com/upciti/wakemeops/main/assets/install_repository | sudo bash
 
 # base apps
 RUN apt update && apt install -y \
+  ack-grep \
+  ca-certificates \
   direnv \
   docker-ce \
   docker-ce-cli \
@@ -43,6 +45,7 @@ RUN apt update && apt install -y \
   gettext-base \
   google-cloud-cli \
   go-task \
+  gpg \
   htop \
   make \
   openvpn \
@@ -54,6 +57,7 @@ RUN apt update && apt install -y \
   ruby-dev \
   software-properties-common \
   sops \
+  tig \
   vim \
   yq \
   zsh \
