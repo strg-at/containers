@@ -2,21 +2,43 @@
 name: build and push docker image
 
 on:
-  workflow_dispatch:
-    inputs:
-      path:
-        description: "path to directory containing the Dockerfile file, f.e. postgres-db-init"
-        required: true
-        type: string
+  push:
+    branches:
+      - main
+    paths:
+      - "*/**"
+      - "!.github/**"
+      - "!**/README.md"
 
 jobs:
-  docker-build-push:
-    uses: "strg-at/github-workflows/.github/workflows/docker-build-push-github.yaml@fe8aec8df10849c97cc87d1d2e1448d03121aceb" # v1.10.0
+  get-changed-files:
+    permissions:
+      contents: read
+    uses: strg-at/github-workflows/.github/workflows/get-changed-files.yaml@fe8aec8df10849c97cc87d1d2e1448d03121aceb
     with:
       runner: '["ubuntu-latest"]'
-      subpath: ${{ inputs.path }}
-      file: ${{ inputs.path }}/Dockerfile
-      context: ${{ inputs.path }}
+      files: |
+        **/*
+      matrix: true
+      dir_names: true
+
+  docker-build-push:
+    needs: [get-changed-files]
+    if: ${{ needs.get-changed-files.outputs.files != '[]' }}
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+    strategy:
+      matrix:
+        paths: ${{ fromJSON(needs.get-changed-files.outputs.files) }}
+      fail-fast: false
+    uses: strg-at/github-workflows/.github/workflows/docker-build-push-github.yaml@fe8aec8df10849c97cc87d1d2e1448d03121aceb
+    with:
+      runner: '["ubuntu-latest"]'
+      subpath: ${{ matrix.paths }}
+      file: ${{ format('{0}/Dockerfile', matrix.paths) }}
+      context: ${{ matrix.paths }}
       tags: |
         ${{ github.sha }}
         type=raw, value=rolling

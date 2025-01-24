@@ -6,8 +6,10 @@ on:
     types:
       - opened
       - synchronize
-    paths-ignore:
-      - .github/**
+    paths:
+      - "*/**"
+      - "!.github/**"
+      - "!**/README.md"
 
 concurrency:
   group: ${{ github.head_ref }}
@@ -21,13 +23,13 @@ jobs:
     with:
       runner: '["ubuntu-latest"]'
       files: |
-        **/Dockerfile
+        **/*
       matrix: true
       dir_names: true
 
   docker-build:
     needs: get-changed-files
-    if: ${{ needs.get-changed-files.outputs.files != '[]'}}
+    if: ${{ needs.get-changed-files.outputs.files != '[]' }}
     permissions:
       contents: read
       packages: read
@@ -38,5 +40,5 @@ jobs:
     uses: strg-at/github-workflows/.github/workflows/docker-build.yaml@fe8aec8df10849c97cc87d1d2e1448d03121aceb # v1.10.0
     with:
       runner: '["ubuntu-latest"]'
-      file: ${{ matrix.paths }}/Dockerfile
+      file: ${{ format('{0}/Dockerfile', matrix.paths) }}
       context: ${{ matrix.paths }}
