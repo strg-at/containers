@@ -1,5 +1,5 @@
 # https://console.cloud.google.com/artifacts/docker/cloud-workstations-images/us-central1/predefined/phpstorm
-FROM europe-west3-docker.pkg.dev/cloud-workstations-images/predefined/phpstorm:latest@sha256:8963db2e0f29335ee7cf29f215ab1e64c97b26905ea97b04897da3a5c595b558 as base
+FROM europe-west3-docker.pkg.dev/cloud-workstations-images/predefined/phpstorm:latest@sha256:8963db2e0f29335ee7cf29f215ab1e64c97b26905ea97b04897da3a5c595b558 AS base
 
 FROM ubuntu:24.04@sha256:80dd3c3b9c6cecb9f1667e9290b3bc61b78c2678c02cbdae5f0fea92cc6734ab
 
@@ -14,7 +14,7 @@ COPY --from=base /usr/bin/workstation-startup /usr/bin/workstation-startup
 
 # installing pre-requirements
 RUN apt update && apt install -y \
-    ca-certificates gpg sudo curl
+  ca-certificates gpg sudo curl
 
 # preparing gsutil installation
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
@@ -29,11 +29,13 @@ RUN install -m 0755 -d /etc/apt/keyrings \
   $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-# Easy install of flux devenv dependencies, see  https://docs.wakemeops.com/
+# easy install of flux devenv dependencies, see  https://docs.wakemeops.com/
 RUN curl -sSL https://raw.githubusercontent.com/upciti/wakemeops/main/assets/install_repository | sudo bash
 
 # base apps
 RUN apt update && apt install -y \
+  ack-grep \
+  ca-certificates \
   direnv \
   docker-ce \
   docker-ce-cli \
@@ -43,6 +45,7 @@ RUN apt update && apt install -y \
   gettext-base \
   google-cloud-cli \
   go-task \
+  gpg \
   htop \
   make \
   openvpn \
@@ -54,6 +57,7 @@ RUN apt update && apt install -y \
   ruby-dev \
   software-properties-common \
   sops \
+  tig \
   vim \
   yq \
   zsh \

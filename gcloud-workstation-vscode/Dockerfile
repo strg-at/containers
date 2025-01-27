@@ -1,5 +1,5 @@
 # https://console.cloud.google.com/artifacts/docker/cloud-workstations-images/us-central1/predefined/code-oss
-FROM europe-west3-docker.pkg.dev/cloud-workstations-images/predefined/code-oss:latest@sha256:aa17d62b98ea4724924855d1ae0371d5dae8e63e788c3537cda67eda01c8bf20 as base
+FROM europe-west3-docker.pkg.dev/cloud-workstations-images/predefined/code-oss:latest@sha256:aa17d62b98ea4724924855d1ae0371d5dae8e63e788c3537cda67eda01c8bf20 AS base
 
 FROM ubuntu:24.04@sha256:80dd3c3b9c6cecb9f1667e9290b3bc61b78c2678c02cbdae5f0fea92cc6734ab
 
@@ -34,6 +34,7 @@ RUN curl -sSL https://raw.githubusercontent.com/upciti/wakemeops/main/assets/ins
 
 # base apps
 RUN apt update && apt install -y \
+  ack-grep \
   ca-certificates \
   direnv \
   docker-ce \
@@ -56,6 +57,7 @@ RUN apt update && apt install -y \
   ruby-dev \
   software-properties-common \
   sops \
+  tig \
   vim \
   yq \
   zsh \
@@ -92,10 +94,10 @@ RUN ln -s /etc/workstation-startup.d/999_start-vpn.sh /usr/local/bin/start-vpn
 # we keep the original sshd config from the official base image
 COPY --from=base /etc/ssh/sshd_config /etc/ssh/sshd_config
 
-RUN apt-get clean
-
 # symlink for task binary
 RUN ln -s /usr/bin/go-task /usr/bin/task
+
+RUN apt-get clean
 
 # set Code OSS port to 81
 RUN sed -i 's/80/8084/' /etc/workstation-startup.d/110_start-code-oss.sh
