@@ -68,7 +68,7 @@ RUN apt update && apt install -y \
 RUN export latest=$(curl -s "https://go.dev/VERSION?m=text" | head -n 1) && wget https://go.dev/dl/$latest.linux-amd64.tar.gz && tar -C /usr/local -xzf $latest.linux-amd64.tar.gz && ln -s /usr/local/go/bin/go /usr/bin/go
 
 # install latest stable version from github, install it in /usr/local/bin due to PATH precedence
-RUN curl -o envsubst https://github.com/a8m/envsubst/releases/latest/download/envsubst-Linux-x86_64 \
+RUN curl -Lo envsubst https://github.com/a8m/envsubst/releases/latest/download/envsubst-Linux-x86_64 \
     && chmod +x envsubst \
     && mv envsubst /usr/local/bin/
 
