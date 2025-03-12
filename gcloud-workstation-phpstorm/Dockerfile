@@ -43,6 +43,7 @@ RUN apt update && apt install -y \
   docker-buildx-plugin \
   docker-compose-plugin \
   gettext-base \
+  gnupg \
   google-cloud-cli \
   go-task \
   gpg \
