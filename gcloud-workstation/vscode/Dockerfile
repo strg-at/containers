@@ -92,7 +92,7 @@ COPY scripts/*.sh /etc/workstation-startup.d/
 RUN chmod +x /etc/workstation-startup.d/*.sh
 
 # containerd configuration
-COPY containerd.toml /etc/containerd/config.toml
+COPY config/containerd.toml /etc/containerd/containerd.toml
 
 # openvpn
 RUN ln -s /etc/workstation-startup.d/999_start-vpn.sh /usr/local/bin/start-vpn

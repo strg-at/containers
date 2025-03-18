@@ -27,10 +27,10 @@ This is basic config for cloud workstation image used for development under dock
 
 ## How to test
 
-build container
+build container (from gcloud-workstation parent folder)
 
 ```console
-docker buildx build -t gcloud-workstation-vscode ./gcloud-workstation-vscode
+docker buildx build -t gcloud-workstation-vscode -f vscode/Dockerfile .
 ```
 
 run container
