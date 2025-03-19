@@ -1,5 +1,5 @@
-# https://console.cloud.google.com/artifacts/docker/cloud-workstations-images/us-central1/predefined/code-oss
-FROM europe-west3-docker.pkg.dev/cloud-workstations-images/predefined/code-oss:latest@sha256:1172acfc19791ff760446a287b42bddc4801a09981bc3a331aa7bfb594787b0d AS base
+# https://console.cloud.google.com/artifacts/docker/cloud-workstations-images/us-central1/predefined/phpstorm
+FROM europe-west3-docker.pkg.dev/cloud-workstations-images/predefined/phpstorm:latest@sha256:3ca7cff214f3c4d42544faf146fe32dcaf599a204db39fefa3e83db6ec1612dc AS base
 
 FROM ubuntu:24.04@sha256:72297848456d5d37d1262630108ab308d3e9ec7ed1c3286a32fe09856619a782
 
@@ -9,12 +9,12 @@ VOLUME ["/home/"]
 # copy necessary folders and files from the official base image
 COPY --from=base /google /google
 COPY --from=base /etc/workstation-startup.d/ /etc/workstation-startup.d/
-COPY --from=base /opt/code-oss /opt/code-oss
+COPY --from=base /opt/PhpStorm /opt/PhpStorm
 COPY --from=base /usr/bin/workstation-startup /usr/bin/workstation-startup
 
 # installing pre-requirements
 RUN apt update && apt install -y \
-  ca-certificates gpg sudo curl
+  ca-certificates gpg sudo curl wget
 
 # preparing gsutil installation
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
@@ -46,7 +46,6 @@ RUN apt update && apt install -y \
   gnupg \
   google-cloud-cli \
   go-task \
-  gpg \
   htop \
   make \
   openvpn \
@@ -92,7 +91,7 @@ COPY scripts/*.sh /etc/workstation-startup.d/
 RUN chmod +x /etc/workstation-startup.d/*.sh
 
 # containerd configuration
-COPY config/containerd.toml /etc/containerd/containerd.toml
+COPY containerd.toml /etc/containerd/config.toml
 
 # openvpn
 RUN ln -s /etc/workstation-startup.d/999_start-vpn.sh /usr/local/bin/start-vpn
@@ -104,10 +103,5 @@ COPY --from=base /etc/ssh/sshd_config /etc/ssh/sshd_config
 RUN ln -s /usr/bin/go-task /usr/bin/task
 
 RUN apt-get clean
-
-# set Code OSS port to 81
-RUN sed -i 's/80/8084/' /etc/workstation-startup.d/110_start-code-oss.sh
-
-EXPOSE 8084
 
 ENTRYPOINT [ "/google/scripts/entrypoint.sh" ]
