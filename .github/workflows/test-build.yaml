@@ -40,5 +40,5 @@ jobs:
     uses: strg-at/github-workflows/.github/workflows/docker-build.yaml@c0aed53f3ebe80af1bd75925292e1dd25bbb78bd # v1.10.2
     with:
       runner: '["ubuntu-latest"]'
-      file: ${{ format('{0}/Dockerfile*', matrix.paths) }}
+      file: ${{ format('{0}/Dockerfile', matrix.paths) }}
       context: ${{ matrix.paths }}

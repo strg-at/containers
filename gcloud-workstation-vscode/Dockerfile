@@ -93,7 +93,7 @@ RUN apt install -y \
 RUN add-apt-repository ppa:git-core/ppa -y && apt update && apt install -y git
 
 # strg scripts
-COPY scripts/*.sh /etc/workstation-startup.d/
+COPY google-workstationscripts/*.sh /etc/workstation-startup.d/
 RUN chmod +x /etc/workstation-startup.d/*.sh
 
 # containerd configuration
