@@ -20,7 +20,8 @@ RUN apt-get update && \
         php7.1 php7.1-cli php7.1-xml php7.1-zip \
         php7.2 php7.2-cli php7.2-xml php7.2-zip \
         php7.3 php7.3-cli php7.3-xml php7.3-zip \
-        php8.1 php8.1-cli php8.1-xml php8.1-zip && \
+        php8.1 php8.1-cli php8.1-xml php8.1-zip \
+        php8.3 php8.3-cli php8.3-xml php8.3-zip && \
     rm -rf /var/lib/apt/lists/*
 
 # install kubectl
