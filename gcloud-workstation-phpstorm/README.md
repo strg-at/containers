@@ -21,7 +21,6 @@ This is basic config for cloud workstation image used for development under dock
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 - [How to test](#how-to-test)
-- [How to update scripts and config files](#how-to-update-scripts-and-config-files)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 </details>
@@ -43,10 +42,6 @@ docker run --rm -it --privileged --name gcloud-workstation-phpstorm gcloud-works
 access IDE
 
 phpstorm is only accessible via [jetbrains gateway][jetbrains-gateway].
-
-## How to update scripts and config files
-
-Various scripts and configuration files are available in the config/ and scripts/ folder. These are symlinks to the actual directories from /gcloud-workstation-files. Updating any of them updates it for both vscode & phpstorm.
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
