@@ -6,6 +6,6 @@
 for script in /home/user/scripts/*.sh; do
     if [ -f "$script" ]; then
         echo "Executing user script: %s\n\r" "$script"
-        bash "$script"
+        sudo -u user bash "$script" || echo "Script $script failed to execute correctly :-(" >> /tmp/custom-scripts.log
     fi
 done
