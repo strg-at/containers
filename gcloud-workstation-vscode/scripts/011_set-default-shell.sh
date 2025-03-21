@@ -51,9 +51,4 @@ alias docker-compose='docker compose'
 EOF
 fi
 
-if [ ! -f /home/user/.zshrc ]; then
-    cp /root/.zshrc /home/user/.zshrc
-    echo "path+=('/home/user/.local/share/gem/ruby/$RUBY_VER/bin')" >> /home/user/.zshrc
-fi
-
 chown user:user /home/user/.zshrc

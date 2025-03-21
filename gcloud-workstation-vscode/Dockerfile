@@ -48,7 +48,6 @@ RUN apt update && apt install -y \
   containerd.io \
   docker-buildx-plugin \
   docker-compose-plugin \
-  gcc \
   gettext-base \
   gnupg \
   google-cloud-cli \
@@ -60,8 +59,6 @@ RUN apt update && apt install -y \
   openssh-server \
   openssh-sftp-server \
   pre-commit \
-  ruby \
-  ruby-dev \
   software-properties-common \
   sops \
   tig \
