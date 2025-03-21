@@ -4,9 +4,6 @@
 chsh -s $(which zsh) root || true
 chsh -s $(which zsh) user || true
 
-# Hack to get the latest ruby version installed
-RUBY_VER=$(ls -alt /home/user/.local/share/gem/ruby | sed -n '2p' | cut -d ' ' -f9)
-
 # Only set the default zshrc configuration if the file doesn't exist
 if [ ! -f /root/.zshrc ]; then
     cat <<'EOF' >/root/.zshrc
