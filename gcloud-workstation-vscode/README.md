@@ -21,6 +21,7 @@ This is basic config for cloud workstation image used for development under dock
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 - [How to test](#how-to-test)
+- [Custom scripts](#custom-scripts)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 </details>
@@ -42,6 +43,12 @@ docker run --rm -it -p 2022:22 -p 8084:80 --privileged --name gcloud-workstation
 access IDE
 
 vscode is accessible via [localhost:8084](http://localhost:8084).
+
+## Custom scripts
+
+A startup script executes on every workstation startup and tries to execute any bash (`sh` extension) scripts present in /home/user/scripts (folder to be manually created by the user if needed).
+
+If any script was not executed properly, it will be logged to /tmp/custom-scripts.log.
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
