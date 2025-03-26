@@ -1,5 +1,5 @@
 # https://console.cloud.google.com/artifacts/docker/cloud-workstations-images/us-central1/predefined/phpstorm
-FROM europe-west3-docker.pkg.dev/cloud-workstations-images/predefined/phpstorm:latest@sha256:8ca529f1e0cad27d8db249d4e63c427ed46b53396e147782df4979b8090b46e6 AS base
+FROM europe-west3-docker.pkg.dev/cloud-workstations-images/predefined/phpstorm:latest@sha256:15c4e9fe56adb392ede6ec8e60ec5fabcdfdc3b5fba6457ad058239b71c3499a AS base
 
 FROM ubuntu:24.04@sha256:72297848456d5d37d1262630108ab308d3e9ec7ed1c3286a32fe09856619a782
 
