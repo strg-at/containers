@@ -14,11 +14,17 @@ COPY --from=base /usr/bin/workstation-startup /usr/bin/workstation-startup
 
 # installing pre-requirements
 RUN apt update && apt install -y \
-  ca-certificates gpg sudo curl
+  ca-certificates gpg sudo curl wget
 
 # preparing gsutil installation
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
   && echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+
+# preparing terraform installation
+RUN wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg \
+  && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
+  https://apt.releases.hashicorp.com $(grep -oP '(?<=UBUNTU_CODENAME=).*' /etc/os-release || lsb_release -cs) main" | \
+  sudo tee /etc/apt/sources.list.d/hashicorp.list
 
 # preparing docker installation
 RUN install -m 0755 -d /etc/apt/keyrings \
@@ -43,9 +49,9 @@ RUN apt update && apt install -y \
   docker-buildx-plugin \
   docker-compose-plugin \
   gettext-base \
+  gnupg \
   google-cloud-cli \
   go-task \
-  gpg \
   htop \
   make \
   openvpn \
@@ -53,8 +59,6 @@ RUN apt update && apt install -y \
   openssh-server \
   openssh-sftp-server \
   pre-commit \
-  ruby \
-  ruby-dev \
   software-properties-common \
   sops \
   tig \
@@ -91,7 +95,7 @@ COPY scripts/*.sh /etc/workstation-startup.d/
 RUN chmod +x /etc/workstation-startup.d/*.sh
 
 # containerd configuration
-COPY containerd.toml /etc/containerd/config.toml
+COPY config/containerd.toml /etc/containerd/containerd.toml
 
 # openvpn
 RUN ln -s /etc/workstation-startup.d/999_start-vpn.sh /usr/local/bin/start-vpn
