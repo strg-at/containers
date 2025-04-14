@@ -11,6 +11,6 @@
   "author": "STRG.",
   "license": "MIT",
   "dependencies": {
-    "@octokit/core": "6.1.4"
+    "@octokit/core": "6.1.5"
   }
 }
