@@ -13,7 +13,7 @@
 
 # github pr approval and merge tool
 
-automated tool for approving and merging github pull requests using github rest api.
+Automated tool for approving and merging github pull requests using github rest api.
 
 ## ENV
 
