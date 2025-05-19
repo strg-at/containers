@@ -13,7 +13,7 @@ const octokit = new Octokit({
 
 try {
   const response = await octokit.request(
-    "GET /repos/{owner}/{repo}/pulls{?state,head,base,sort,direction,per_page,page}",
+    "GET /repos/{owner}/{repo}/pulls?{state,head,base,sort,direction,per_page,page}",
     {
       owner: `${args.OWNER}`,
       repo: `${args.REPO}`,
