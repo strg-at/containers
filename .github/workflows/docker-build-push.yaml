@@ -6,7 +6,8 @@ on:
     branches:
       - main
     paths:
-      - "*/**"
+      - "**/*"
+      - "!*"
       - "!.github/**"
       - "!**/README.md"
 
