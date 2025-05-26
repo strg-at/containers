@@ -11,10 +11,15 @@ COPY --from=base /google /google
 COPY --from=base /etc/workstation-startup.d/ /etc/workstation-startup.d/
 COPY --from=base /opt/code-oss /opt/code-oss
 COPY --from=base /usr/bin/workstation-startup /usr/bin/workstation-startup
+COPY ./systemd-assets/. /
+
+# patch docker scripts to run dockerd directly
+RUN sed -i 's/\(^service docker start.*\)/#\1\n\/usr\/bin\/dockerd $DOCKER_OPTS/' /google/scripts/wrapdocker/wrapdocker && \
+  sed -i '/^.*wrapdocker.*$/{H;d;}; /service docker restart/{d}; ${G;}' /etc/workstation-startup.d/000_configure-docker.sh
 
 # installing pre-requirements
-RUN apt update && apt install -y \
-  ca-certificates gpg sudo curl wget
+RUN apt update && DEBIAN_FRONTEND=noninteractive apt install -y \
+  ca-certificates curl gpg sudo systemd wget
 
 # preparing gsutil installation
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
@@ -94,12 +99,6 @@ RUN add-apt-repository ppa:git-core/ppa -y && apt update && apt install -y git
 COPY scripts/*.sh /etc/workstation-startup.d/
 RUN chmod +x /etc/workstation-startup.d/*.sh
 
-# containerd configuration
-COPY config/containerd.toml /etc/containerd/containerd.toml
-
-# openvpn
-RUN ln -s /etc/workstation-startup.d/999_start-vpn.sh /usr/local/bin/start-vpn
-
 # we keep the original sshd config from the official base image
 COPY --from=base /etc/ssh/sshd_config /etc/ssh/sshd_config
 
@@ -108,9 +107,9 @@ RUN ln -s /usr/bin/go-task /usr/bin/task
 
 RUN apt-get clean
 
-# set Code OSS port to 81
+# set Code OSS port to 8084
 RUN sed -i 's/80/8084/' /etc/workstation-startup.d/110_start-code-oss.sh
 
 EXPOSE 8084
 
-ENTRYPOINT [ "/google/scripts/entrypoint.sh" ]
+ENTRYPOINT ["/usr/bin/workstation-init"]
