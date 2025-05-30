@@ -8,9 +8,9 @@ on:
       - synchronize
     paths:
       - "**/*"
-      - "!*"
       - "!.github/**"
       - "!**/README.md"
+      - "!*"
 
 concurrency:
   group: ${{ github.head_ref }}
@@ -25,8 +25,12 @@ jobs:
       runner: '["ubuntu-latest"]'
       files: |
         **/*
+        !.github/**
+        !.taskfiles/**
       matrix: true
       dir_names: true
+      dir_names_exclude_current_dir: true
+      dir_names_max_depth: 1
 
   docker-build:
     needs: get-changed-files
