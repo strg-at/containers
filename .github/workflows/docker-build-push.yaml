@@ -7,9 +7,9 @@ on:
       - main
     paths:
       - "**/*"
-      - "!*"
       - "!.github/**"
       - "!**/README.md"
+      - "!*"
 
 jobs:
   get-changed-files:
@@ -20,8 +20,12 @@ jobs:
       runner: '["ubuntu-latest"]'
       files: |
         **/*
+        !.github/**
+        !.taskfiles/**
       matrix: true
       dir_names: true
+      dir_names_exclude_current_dir: true
+      dir_names_max_depth: 1
 
   docker-build-push:
     needs: [get-changed-files]
