@@ -48,4 +48,4 @@ alias docker-compose='docker compose'
 EOF
 fi
 
-chown user:user /home/user/.zshrc
+cp /root/.zshrc /home/user/.zshrc && chown user:user /home/user/.zshrc
