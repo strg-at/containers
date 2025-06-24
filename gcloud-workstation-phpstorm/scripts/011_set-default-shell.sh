@@ -48,4 +48,7 @@ alias docker-compose='docker compose'
 EOF
 fi
 
-cp /root/.zshrc /home/user/.zshrc && chown user:user /home/user/.zshrc
+# Only create a .zshrc file in the user home directory if it doesn't exist
+if [ ! -f /home/user/.zshrc ]; then
+    cp /root/.zshrc /home/user/.zshrc && chown user:user /home/user/.zshrc
+fi
