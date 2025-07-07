@@ -145,10 +145,10 @@ try:
     f.write(f"# TYPE sitemap_file_size_bytes gauge\n")
     f.write(f"sitemap_file_size_bytes{{hostname=\"{hostname}\"}} {filesize}\n")
 
-    if not is_port_in_use(serverPort):
-      with socketserver.TCPServer((hostname, serverPort), Handler) as httpd:
-          print(f"Server started at {hostname}:{serverPort}")
-          httpd.serve_forever()
+  if not is_port_in_use(serverPort):
+    with socketserver.TCPServer((hostname, serverPort), Handler) as httpd:
+        print(f"Server started at {hostname}:{serverPort}")
+        httpd.serve_forever()
 except Exception as e:
   print(f"❌ Exception: {type(e).__name__} - {e}")
   traceback.print_exc()
