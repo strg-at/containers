@@ -129,25 +129,26 @@ def analyze_xml_sitemap(file):
 
 try:
   analyze_xml_sitemap(get_sitemap(input))
-  hostname = "0.0.0.0"
+  host = "0.0.0.0"
   serverPort = 8080
   with open(outfile, "w") as f:
     f.write(f"# HELP sitemap_newest_item_age_seconds Age in seconds of the sitemaps newest object\n")
     f.write(f"# TYPE sitemap_newest_item_age_seconds gauge\n")
-    f.write(f"sitemap_newest_item_age_seconds{{hostname=\"{hostname}\"}} {sm_age_newest}\n")
+    f.write(f"sitemap_newest_item_age_seconds{{target=\"{get_output_filename(input)}\"}} {sm_age_newest}\n")
     f.write(f"# HELP sitemap_oldest_item_age_seconds Age in seconds of the sitemaps oldest object\n")
     f.write(f"# TYPE sitemap_oldest_item_age_seconds gauge\n")
-    f.write(f"sitemap_oldest_item_age_seconds{{hostname=\"{hostname}\"}} {sm_age_oldest}\n")
+    f.write(f"sitemap_oldest_item_age_seconds{{target=\"{get_output_filename(input)}\"}} {sm_age_oldest}\n")
     f.write(f"# HELP sitemap_item_count Number of lastmod items in sitemap\n")
     f.write(f"# TYPE sitemap_item_count gauge\n")
-    f.write(f"sitemap_item_count{{hostname=\"{hostname}\"}} {sm_item_count}\n")
+    f.write(f"sitemap_item_count{{target=\"{get_output_filename(input)}\"}} {sm_item_count}\n")
     f.write(f"# HELP sitemap_file_size_bytes Size of the downloaded sitemap file in bytes\n")
     f.write(f"# TYPE sitemap_file_size_bytes gauge\n")
-    f.write(f"sitemap_file_size_bytes{{hostname=\"{hostname}\"}} {filesize}\n")
+    f.write(f"sitemap_file_size_bytes{{target=\"{get_output_filename(input)}\"}} {filesize}\n")
 
   if not is_port_in_use(serverPort):
-    with socketserver.TCPServer((hostname, serverPort), Handler) as httpd:
-        print(f"Server started at {hostname}:{serverPort}")
+    print(hostname)
+    with socketserver.TCPServer((host, serverPort), Handler) as httpd:
+        print(f"Server started at {host}:{serverPort}")
         httpd.serve_forever()
 except Exception as e:
   print(f"❌ Exception: {type(e).__name__} - {e}")
