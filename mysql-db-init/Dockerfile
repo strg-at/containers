@@ -1,4 +1,4 @@
-FROM mysql:8.4.5@sha256:134ded8601e984fd00113bf8e73c1980b6534bf62dc53e04f458bfd8d475d206
+FROM mysql:8.4.5@sha256:679e7e924f38a3cbb62a3d7df32924b83f7321a602d3f9f967c01b3df18495d6
 
 LABEL name=@strg-at/mysql-db-init
 LABEL maintainer=STRG.
