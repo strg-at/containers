@@ -10,7 +10,7 @@ if [[ -z "${PGHOST}" || -z "${PGUSER}" || -z "${PGPASSWORD}" || -z "${PGDATABASE
   exit 1
 fi
 
-if [[ "${POSTGRES_EXTENSION_ANON}" == "true" ]]
+if [[ "${POSTGRES_EXTENSION_ANON}" == "true" ]]; then
   if [[ -z "${POSTGRES_ANON_USER}" || -z "${POSTGRES_ANON_PASSWORD}" ]]; then
     printf "\e[1;32m%-6s\e[m\n" "environment variables missing to configure anon role ..."
     exit 1
