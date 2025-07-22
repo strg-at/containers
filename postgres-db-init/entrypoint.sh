@@ -10,6 +10,13 @@ if [[ -z "${PGHOST}" || -z "${PGUSER}" || -z "${PGPASSWORD}" || -z "${PGDATABASE
   exit 1
 fi
 
+if [[ "${POSTGRES_EXTENSION_ANON}" == "true" ]]
+  if [[ -z "${POSTGRES_ANON_USER}" && ! -z "${POSTGRES_ANON_PASSWORD}" ]]; then
+    printf "\e[1;32m%-6s\e[m\n" "environment variables missing to configure anon role ..."
+    exit 1
+  fi
+fi
+
 until pg_isready; do
   printf "\e[1;32m%-6s\e[m\n" "waiting for host '${PGHOST}' ..."
   sleep 1
@@ -20,6 +27,13 @@ user_exists=$(\
     --tuples-only \
     --csv \
     --command "SELECT 1 FROM pg_roles WHERE rolname = '${POSTGRES_USER}'"
+)
+
+anon_role_exists=$(\
+  psql \
+    --tuples-only \
+    --csv \
+    --command "SELECT 1 FROM pg_roles WHERE rolname = '${POSTGRES_ANON_USER}'"
 )
 
 if [[ -z "${user_exists}" ]]; then
@@ -58,5 +72,24 @@ do
   if [[ "${POSTGRES_EXTENSION_UUID_OSSP}" == "true" ]]; then
     printf "\e[1;32m%-6s\e[m\n" "create extension uuid-ossp on ${init_db} with schema ${POSTGRES_USER} ..."
     psql --dbname=${init_db} --command "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\" WITH SCHEMA ${POSTGRES_USER};"
+  fi
+
+  if [[ "${POSTGRES_EXTENSION_ANON}" == "true" ]]; then
+    printf "\e[1;32m%-6s\e[m\n" "create extension anon on ${init_db} with schema ${POSTGRES_USER} ..."
+    psql --dbname=${init_db} --command "CREATE EXTENSION IF NOT EXISTS \"anon\" WITH SCHEMA ${POSTGRES_USER};"
+    printf "\e[1;32m%-6s\e[m\n" "create role ${POSTGRES_ANON_USER} ..."
+
+    if [[ -z "${anon_role_exists}" ]]; then
+      printf "\e[1;32m%-6s\e[m\n" "create database role ${POSTGRES_ANON_USER} ..."
+      psql --command "CREATE ROLE ${POSTGRES_ANON_USER} WITH ENCRYPTED PASSWORD '${POSTGRES_ANON_PASSWORD}';"
+      printf "\e[1;32m%-6s\e[m\n" "alter role ${POSTGRES_ANON_USER} to enable transparent dynamic masking ..."
+      psql --dbname=${init_db} --command "ALTER ROLE ${POSTGRES_ANON_USER} SET anon.transparent_dynamic_masking TO TRUE;"
+      printf "\e[1;32m%-6s\e[m\n" "set security label on ${POSTGRES_ANON_USER} role ..."
+      psql --dbname=${init_db} --command "SECURITY LABEL FOR anon ON ROLE ${POSTGRES_ANON_USER} IS 'MASKED';"
+      printf "\e[1;32m%-6s\e[m\n" "give read-only privileges to ${POSTGRES_ANON_USER} role on all databases ..."
+      psql --command "GRANT pg_read_all_data TO ${POSTGRES_ANON_USER};"
+    else
+      printf "\e[1;32m%-6s\e[m\n" "database role exists, skipping creation ..."
+    fi
   fi
 done
