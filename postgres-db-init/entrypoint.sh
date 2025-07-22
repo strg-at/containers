@@ -81,7 +81,7 @@ do
 
     if [[ -z "${anon_role_exists}" ]]; then
       printf "\e[1;32m%-6s\e[m\n" "create database role ${POSTGRES_ANON_USER} ..."
-      psql --command "CREATE ROLE ${POSTGRES_ANON_USER} WITH ENCRYPTED PASSWORD '${POSTGRES_ANON_PASSWORD}';"
+      psql --command "CREATE ROLE ${POSTGRES_ANON_USER} LOGIN ENCRYPTED PASSWORD '${POSTGRES_ANON_PASSWORD}';"
       printf "\e[1;32m%-6s\e[m\n" "alter role ${POSTGRES_ANON_USER} to enable transparent dynamic masking ..."
       psql --dbname=${init_db} --command "ALTER ROLE ${POSTGRES_ANON_USER} SET anon.transparent_dynamic_masking TO TRUE;"
       printf "\e[1;32m%-6s\e[m\n" "set security label on ${POSTGRES_ANON_USER} role ..."
