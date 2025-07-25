@@ -59,4 +59,9 @@ do
     printf "\e[1;32m%-6s\e[m\n" "create extension uuid-ossp on ${init_db} with schema ${POSTGRES_USER} ..."
     psql --dbname=${init_db} --command "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\" WITH SCHEMA ${POSTGRES_USER};"
   fi
+
+  if [[ "${POSTGRES_EXTENSION_ANON}" == "true" ]]; then
+    printf "\e[1;32m%-6s\e[m\n" "create extension anon on ${init_db} with schema ${POSTGRES_USER} ..."
+    psql --dbname=${init_db} --command "CREATE EXTENSION IF NOT EXISTS \"anon\" WITH SCHEMA ${POSTGRES_USER};"
+  fi
 done
