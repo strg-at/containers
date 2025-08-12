@@ -62,6 +62,6 @@ do
 
   if [[ "${POSTGRES_EXTENSION_ANON}" == "true" ]]; then
     printf "\e[1;32m%-6s\e[m\n" "create extension anon on ${init_db} with schema ${POSTGRES_USER} ..."
-    psql --dbname=${init_db} --command "CREATE EXTENSION IF NOT EXISTS \"anon\" WITH SCHEMA ${POSTGRES_USER};"
+    psql --dbname=${init_db} --command "CREATE EXTENSION IF NOT EXISTS \"anon\" WITH SCHEMA ${POSTGRES_USER} CASCADE;"
   fi
 done
