@@ -1,5 +1,5 @@
 # https://console.cloud.google.com/artifacts/docker/cloud-workstations-images/us-central1/predefined/code-oss
-FROM europe-west3-docker.pkg.dev/cloud-workstations-images/predefined/code-oss:latest@sha256:48de9bc7bbfb24f7a6721d1e1c2027285b0bb4b88788810653c8873fda5573a9 AS base
+FROM europe-west3-docker.pkg.dev/cloud-workstations-images/predefined/code-oss:latest@sha256:346bf3e94feeac2d0ced7ec21cd1f5f850012f98c295a7cf7c3cf3f6f2eb1bb9 AS base
 
 FROM ubuntu:24.04@sha256:7c06e91f61fa88c08cc74f7e1b7c69ae24910d745357e0dfe1d2c0322aaf20f9
 
