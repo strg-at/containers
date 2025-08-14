@@ -60,7 +60,7 @@ RUN apt update && add-apt-repository ppa:git-core/ppa -y && DEBIAN_FRONTEND=noni
   gpg \
   htop \
   k9s \
-  kind \
+  kind=0.27.0-1~ops2deb \
   kubectl \
   kustomize \
   make \
