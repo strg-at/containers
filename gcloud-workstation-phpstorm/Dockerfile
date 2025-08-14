@@ -103,4 +103,4 @@ RUN ln -s /usr/bin/go-task /usr/bin/task
 
 RUN apt-get clean
 
-ENTRYPOINT [ "/google/scripts/entrypoint.sh" ]
+ENTRYPOINT ["/usr/bin/workstation-init"]
