@@ -35,6 +35,7 @@ def get_output_filename(url):
 input = os.environ.get('TARGET', '')
 outdir = "/app/metrics/"
 outfile = outdir + "sitemap_" + get_output_filename(input) + ".prom"
+version = "1.0"
 
 class Handler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
@@ -45,7 +46,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             with open(outfile, 'r') as f:
                 content = f.read()
             self.send_response(200)
-            self.send_header('Content-type', 'text/plain; version=1.0')
+            self.send_header('Content-type', f'text/plain; version={version}')
             self.end_headers()
             self.wfile.write(content.encode('utf-8'))
           except FileNotFoundError:
@@ -73,7 +74,7 @@ def get_sitemap(url):
   # Returns file name (str)
   global filename
   global filesize
-  headers = {"User-Agent": "check-sitemap/1.0"}
+  headers = {"User-Agent": f"check-sitemap/{version}"}
   try:
     resp = r.get(url, headers=headers)
   except Exception as e:
