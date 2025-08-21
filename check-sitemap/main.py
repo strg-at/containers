@@ -45,7 +45,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             with open(outfile, 'r') as f:
                 content = f.read()
             self.send_response(200)
-            self.send_header('Content-type', 'text/plain; version=0.0.4')
+            self.send_header('Content-type', 'text/plain; version=1.0')
             self.end_headers()
             self.wfile.write(content.encode('utf-8'))
           except FileNotFoundError:
@@ -73,8 +73,9 @@ def get_sitemap(url):
   # Returns file name (str)
   global filename
   global filesize
+  headers = {"User-Agent": "check-sitemap/1.0"}
   try:
-    resp = r.get(url)
+    resp = r.get(url, headers=headers)
   except Exception as e:
     print(e)
   with tf.NamedTemporaryFile(delete=False) as f:
