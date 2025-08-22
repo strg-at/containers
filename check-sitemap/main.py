@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 import datetime as dt
-import grp
 import http.server
 import os
-import pwd
 import re
 import requests as r
+import time
 import socketserver
 import sys
 import tempfile as tf
 import xml.etree.ElementTree as ET
-import traceback
+import threading
+import logging
+from croniter import croniter
 
 """
 This script fetches a sitemap from a given URL and checks
@@ -25,34 +26,64 @@ It prints out
 in a way that prometheus should handle it.
 """
 
-def get_output_filename(url):
-  global hostname
-  regex = re.compile('^https?:\/\/([^\/]+)')
-  match = re.match(regex, url)
-  hostname = match[1]
-  return hostname
+# -------------------
+# Logging setup
+# -------------------
+log_level = os.environ.get("LOG_LEVEL", "INFO").upper()
+logging.basicConfig(
+    level=log_level,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
+logger = logging.getLogger(__name__)
 
+# -------------------
+# Global config
+# -------------------
 input = os.environ.get('TARGET', '')
+if not input:
+    logger.error("❌ TARGET environment variable is not set")
+    sys.exit(1)
+
+cron_expr = os.environ.get("CRON_SCHEDULE", "0 * * * *")  # default: top of every hour
+
 outdir = "/app/metrics/"
-outfile = outdir + "sitemap_" + get_output_filename(input) + ".prom"
+os.makedirs(outdir, exist_ok=True)
+
+def get_output_filename(url):
+    regex = re.compile(r'^https?:\/\/([^\/]+)')
+    match = re.match(regex, url)
+    if not match:
+        logger.error(f"❌ Could not extract hostname from URL: {url}")
+        sys.exit(1)
+    return match[1]
+
+outfile = os.path.join(outdir, f"sitemap_{get_output_filename(input)}.prom")
 version = "1.0"
 
+# -------------------
+# HTTP handler
+# -------------------
 class Handler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=outdir, **kwargs)
     def do_GET(self):
         if self.path == '/metrics':
-          try:
-            with open(outfile, 'r') as f:
-                content = f.read()
+            try:
+                with open(outfile, 'r') as f:
+                    content = f.read()
+                self.send_response(200)
+                self.send_header('Content-type', f'text/plain; version={version}')
+                self.end_headers()
+                self.wfile.write(content.encode('utf-8'))
+            except FileNotFoundError:
+                self.send_response(404)
+                self.end_headers()
+                self.wfile.write(b'Metrics file not found.\n')
+        elif self.path == '/healthz':
             self.send_response(200)
-            self.send_header('Content-type', f'text/plain; version={version}')
             self.end_headers()
-            self.wfile.write(content.encode('utf-8'))
-          except FileNotFoundError:
-              self.send_response(404)
-              self.end_headers()
-              self.wfile.write(b'Metrics file not found.\n')
+            self.wfile.write(b'OK\n')
         else:
             self.send_response(404)
             self.end_headers()
@@ -63,96 +94,120 @@ def is_port_in_use(port: int) -> bool:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         return s.connect_ex(('localhost', int(port))) == 0
 
-print(f"Input URL: {input}")
-
-def cleanup(file):
-  # Delete temporary file
-  os.remove(file)
-
+# -------------------
+# Sitemap fetch & analysis
+# -------------------
 def get_sitemap(url):
-  # Fetches a sitemap and saves it to a file
-  # Returns file name (str)
-  global filename
-  global filesize
-  headers = {"User-Agent": f"check-sitemap/{version}"}
-  try:
-    resp = r.get(url, headers=headers)
-  except Exception as e:
-    print(e)
-  with tf.NamedTemporaryFile(delete=False) as f:
-    f.write(resp.content)
-  filename = f.name
-  filesize = os.path.getsize(f.name)
-  return filename
+    global filesize
+    headers = {"User-Agent": f"check-sitemap/{version}"}
+    try:
+        resp = r.get(url, headers=headers, timeout=30)
+        resp.raise_for_status()
+    except Exception:
+        logger.exception(f"Error fetching sitemap from {url}")
+        raise
+
+    with tf.NamedTemporaryFile(delete=False) as f:
+        f.write(resp.content)
+    filesize = os.path.getsize(f.name)
+    logger.info(f"Downloaded sitemap ({filesize} bytes) -> {f.name}")
+    return f.name
 
 def analyze_xml_sitemap(file):
-  # Function expects file to be a (str) path to an XML sitemap.
-  # It will check the tree to validate the xml, than count the items and gather
-  # newest and oldest from lastmod tag.
-  # Returns
-  #   sm_newest: age of the newest item from now in secs (int)
-  #   sm_oldest: age of the oldest item from now in secs (int)
-  #   sm_item_count: number of lastmod items in the parsed xml
-  try:
-    with open(file, "r") as f:
-      try:
+    global sm_age_newest, sm_age_oldest, sm_item_count
+    try:
         tree = ET.parse(file)
-      except Exception as e:
-        print(f"Error parsing the xml file: {e}")
+        root = tree.getroot()
+        ns = {'object': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
+        sm_lastmod_items = root.findall('.//object:lastmod', ns)
+        sm_newest = dt.datetime.fromisoformat("1970-01-01T00:00:00+00:00")
+        sm_oldest = dt.datetime.now(dt.timezone.utc)
+        sm_item_count = 0
 
-      global sm_age_newest
-      global sm_age_oldest
-      global sm_item_count
+        for sm_item in sm_lastmod_items:
+            try:
+                sm_timestamp = dt.datetime.fromisoformat(sm_item.text)
+                sm_item_count += 1
+                if sm_timestamp > sm_newest:
+                    sm_newest = sm_timestamp
+                if sm_timestamp < sm_oldest:
+                    sm_oldest = sm_timestamp
+            except Exception:
+                logger.warning(f"Invalid timestamp in sitemap: {sm_item.text}")
 
-      root = tree.getroot()
-      ns = {'object': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
-      sm_lastmod_items = root.findall('.//object:lastmod', ns)
-      sm_newest = dt.datetime.fromisoformat("1970-01-01T00:00:00+00:00")
-      sm_oldest = dt.datetime.now(dt.timezone.utc)
-      sm_item_count = 0
+        sm_age_newest = int((dt.datetime.now(dt.timezone.utc) - sm_newest).total_seconds())
+        sm_age_oldest = int((dt.datetime.now(dt.timezone.utc) - sm_oldest).total_seconds())
 
-      # Get min/max timestamps and count
-      for sm_item in sm_lastmod_items:
-        sm_timestamp = dt.datetime.fromisoformat(sm_item.text)
-        sm_item_count += 1
-        if sm_timestamp > sm_newest:
-          sm_newest = sm_timestamp
-        if sm_timestamp < sm_oldest:
-          sm_oldest = sm_timestamp
+        logger.info(f"Sitemap analysis: {sm_item_count} items, newest={sm_age_newest}s, oldest={sm_age_oldest}s")
+        return sm_age_newest, sm_age_oldest, sm_item_count
 
-      # Calculate time delta from now
-      sm_age_newest = int(dt.timedelta.total_seconds(dt.datetime.now(dt.timezone.utc) - sm_newest))
-      sm_age_oldest = int(dt.timedelta.total_seconds(dt.datetime.now(dt.timezone.utc) - sm_oldest))
+    except Exception:
+        logger.exception("Error analyzing sitemap XML")
+        raise
 
-      return sm_age_newest, sm_age_oldest, sm_item_count
+# -------------------
+# Metrics writer
+# -------------------
+def write_prom_metrics():
+    try:
+        analyze_xml_sitemap(get_sitemap(input))
+        with open(outfile, "w") as f:
+            f.write(f"# HELP sitemap_newest_item_age_seconds Age in seconds of the sitemaps newest object\n")
+            f.write(f"# TYPE sitemap_newest_item_age_seconds gauge\n")
+            f.write(f"sitemap_newest_item_age_seconds{{target=\"{get_output_filename(input)}\"}} {sm_age_newest}\n")
+            f.write(f"# HELP sitemap_oldest_item_age_seconds Age in seconds of the sitemaps oldest object\n")
+            f.write(f"# TYPE sitemap_oldest_item_age_seconds gauge\n")
+            f.write(f"sitemap_oldest_item_age_seconds{{target=\"{get_output_filename(input)}\"}} {sm_age_oldest}\n")
+            f.write(f"# HELP sitemap_item_count Number of lastmod items in sitemap\n")
+            f.write(f"# TYPE sitemap_item_count gauge\n")
+            f.write(f"sitemap_item_count{{target=\"{get_output_filename(input)}\"}} {sm_item_count}\n")
+            f.write(f"# HELP sitemap_file_size_bytes Size of the downloaded sitemap file in bytes\n")
+            f.write(f"# TYPE sitemap_file_size_bytes gauge\n")
+            f.write(f"sitemap_file_size_bytes{{target=\"{get_output_filename(input)}\"}} {filesize}\n")
 
-  except Exception as e:
-    print(f"Exception: {e}")
+        logger.info("✅ Metrics file updated")
+    except Exception:
+        logger.exception("❌ Failed to update metrics")
 
-try:
-  analyze_xml_sitemap(get_sitemap(input))
-  host = "0.0.0.0"
-  serverPort = 8080
-  with open(outfile, "w") as f:
-    f.write(f"# HELP sitemap_newest_item_age_seconds Age in seconds of the sitemaps newest object\n")
-    f.write(f"# TYPE sitemap_newest_item_age_seconds gauge\n")
-    f.write(f"sitemap_newest_item_age_seconds{{target=\"{get_output_filename(input)}\"}} {sm_age_newest}\n")
-    f.write(f"# HELP sitemap_oldest_item_age_seconds Age in seconds of the sitemaps oldest object\n")
-    f.write(f"# TYPE sitemap_oldest_item_age_seconds gauge\n")
-    f.write(f"sitemap_oldest_item_age_seconds{{target=\"{get_output_filename(input)}\"}} {sm_age_oldest}\n")
-    f.write(f"# HELP sitemap_item_count Number of lastmod items in sitemap\n")
-    f.write(f"# TYPE sitemap_item_count gauge\n")
-    f.write(f"sitemap_item_count{{target=\"{get_output_filename(input)}\"}} {sm_item_count}\n")
-    f.write(f"# HELP sitemap_file_size_bytes Size of the downloaded sitemap file in bytes\n")
-    f.write(f"# TYPE sitemap_file_size_bytes gauge\n")
-    f.write(f"sitemap_file_size_bytes{{target=\"{get_output_filename(input)}\"}} {filesize}\n")
-  exit(0)
+# -------------------
+# HTTP server thread
+# -------------------
+def start_http_server():
+    host = "0.0.0.0"
+    port = 8080
+    if not is_port_in_use(port):
+        with socketserver.TCPServer((host, port), Handler) as httpd:
+            logger.info(f"HTTP server started at {host}:{port}")
+            httpd.serve_forever()
+    else:
+        logger.error(f"Port {port} is already in use, cannot start server")
 
-  if not is_port_in_use(serverPort):
-    print(hostname)
-    with socketserver.TCPServer((host, serverPort), Handler) as httpd:
-        print(f"Server started at {host}:{serverPort}")
-        httpd.serve_forever()
-except Exception as e:
-  print(f"❌ Exception: {type(e).__name__} - {e}")
-  traceback.print_exc()
+# -------------------
+# Cron scheduler loop
+# -------------------
+def cron_scheduler():
+    base = dt.datetime.now(dt.timezone.utc)
+    iter = croniter(cron_expr, base)
+    next_run = iter.get_next(dt.datetime)
+
+    while True:
+        now = dt.datetime.now(dt.timezone.utc)
+        if now >= next_run:
+            logger.info(f"⏰ Running job scheduled at {next_run}")
+            write_prom_metrics()
+            next_run = iter.get_next(dt.datetime)
+            logger.info(f"Next run scheduled at {next_run}")
+        time.sleep(1)
+
+# -------------------
+# Main loop
+# -------------------
+if __name__ == "__main__":
+    logger.info(f"Starting sitemap checker for {input}")
+    logger.info(f"Using CRON_SCHEDULE='{cron_expr}'")
+
+    # Start server in background
+    threading.Thread(target=start_http_server, daemon=True).start()
+
+    # Start cron scheduler (blocking loop)
+    cron_scheduler()
