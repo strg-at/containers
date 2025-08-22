@@ -1,2 +1,0 @@
-TARGET="$TARGET"
-$CRON_SCHEDULE root /usr/local/bin/python3 /app/main.py >> /var/log/cron.log 2>&1
