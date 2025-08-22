@@ -200,5 +200,9 @@ if __name__ == "__main__":
     # Start HTTP server in background
     threading.Thread(target=start_http_server, daemon=True).start()
 
+    # Run once immediately at startup
+    logger.info("🚀 Running initial metrics scrape at startup")
+    write_prom_metrics()
+
     # Start scheduler loop (blocking)
     scheduler_loop()
