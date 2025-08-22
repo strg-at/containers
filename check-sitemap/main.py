@@ -146,6 +146,7 @@ try:
     f.write(f"# HELP sitemap_file_size_bytes Size of the downloaded sitemap file in bytes\n")
     f.write(f"# TYPE sitemap_file_size_bytes gauge\n")
     f.write(f"sitemap_file_size_bytes{{target=\"{get_output_filename(input)}\"}} {filesize}\n")
+  exit(0)
 
   if not is_port_in_use(serverPort):
     print(hostname)
