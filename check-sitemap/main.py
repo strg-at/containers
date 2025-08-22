@@ -1,72 +1,56 @@
 #!/usr/bin/env python3
 import datetime as dt
+import grp
 import http.server
 import os
+import pwd
 import re
 import requests as r
-import time
 import socketserver
 import sys
 import tempfile as tf
+import traceback
 import xml.etree.ElementTree as ET
-import threading
 import logging
+import threading
+import time
+
 from croniter import croniter
+from datetime import datetime
 
 """
 This script fetches a sitemap from a given URL and checks
 * the validity of the XML and
 * the min and max age of its elements.
 
-It prints out
+It prints out metrics in Prometheus format:
   * sitemap_newest_item_age_seconds
   * sitemap_oldest_item_age_seconds
   * sitemap_item_count
   * sitemap_file_size_bytes
-in a way that prometheus should handle it.
 """
 
-# -------------------
-# Logging setup
-# -------------------
-log_level = os.environ.get("LOG_LEVEL", "INFO").upper()
+# ---------------------- Logging ----------------------
 logging.basicConfig(
-    level=log_level,
+    level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
 
-# -------------------
-# Global config
-# -------------------
-input = os.environ.get('TARGET', '')
-if not input:
-    logger.error("❌ TARGET environment variable is not set")
-    sys.exit(1)
-
-cron_expr = os.environ.get("CRON_SCHEDULE", "0 * * * *")  # default: top of every hour
-
+# ---------------------- Config ----------------------
+input_url = os.environ.get('TARGET', '')
+cron_expr = os.environ.get('CRON_SCHEDULE', '0 * * * *')  # default: every hour
 outdir = "/app/metrics/"
 os.makedirs(outdir, exist_ok=True)
-
-def get_output_filename(url):
-    regex = re.compile(r'^https?:\/\/([^\/]+)')
-    match = re.match(regex, url)
-    if not match:
-        logger.error(f"❌ Could not extract hostname from URL: {url}")
-        sys.exit(1)
-    return match[1]
-
-outfile = os.path.join(outdir, f"sitemap_{get_output_filename(input)}.prom")
+outfile = outdir + "sitemap_" + re.sub(r'[^a-zA-Z0-9._-]', '_', input_url) + ".prom"
 version = "1.0"
 
-# -------------------
-# HTTP handler
-# -------------------
+# ---------------------- HTTP Handler ----------------------
 class Handler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=outdir, **kwargs)
+
     def do_GET(self):
         if self.path == '/metrics':
             try:
@@ -80,10 +64,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 self.send_response(404)
                 self.end_headers()
                 self.wfile.write(b'Metrics file not found.\n')
-        elif self.path == '/healthz':
-            self.send_response(200)
-            self.end_headers()
-            self.wfile.write(b'OK\n')
         else:
             self.send_response(404)
             self.end_headers()
@@ -94,9 +74,14 @@ def is_port_in_use(port: int) -> bool:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         return s.connect_ex(('localhost', int(port))) == 0
 
-# -------------------
-# Sitemap fetch & analysis
-# -------------------
+# ---------------------- Sitemap Functions ----------------------
+def get_output_filename(url):
+    regex = re.compile('^https?:\/\/([^\/]+)')
+    match = re.match(regex, url)
+    if match:
+        return match[1]
+    return "unknown"
+
 def get_sitemap(url):
     global filesize
     headers = {"User-Agent": f"check-sitemap/{version}"}
@@ -109,9 +94,11 @@ def get_sitemap(url):
 
     with tf.NamedTemporaryFile(delete=False) as f:
         f.write(resp.content)
-    filesize = os.path.getsize(f.name)
-    logger.info(f"Downloaded sitemap ({filesize} bytes) -> {f.name}")
-    return f.name
+        temp_path = f.name
+
+    filesize = os.path.getsize(temp_path)
+    logger.info(f"Downloaded sitemap ({filesize} bytes) -> {temp_path}")
+    return temp_path
 
 def analyze_xml_sitemap(file):
     global sm_age_newest, sm_age_oldest, sm_item_count
@@ -145,69 +132,73 @@ def analyze_xml_sitemap(file):
         logger.exception("Error analyzing sitemap XML")
         raise
 
-# -------------------
-# Metrics writer
-# -------------------
 def write_prom_metrics():
+    temp_file = None
     try:
-        analyze_xml_sitemap(get_sitemap(input))
+        temp_file = get_sitemap(input_url)
+        analyze_xml_sitemap(temp_file)
         with open(outfile, "w") as f:
             f.write(f"# HELP sitemap_newest_item_age_seconds Age in seconds of the sitemaps newest object\n")
             f.write(f"# TYPE sitemap_newest_item_age_seconds gauge\n")
-            f.write(f"sitemap_newest_item_age_seconds{{target=\"{get_output_filename(input)}\"}} {sm_age_newest}\n")
+            f.write(f"sitemap_newest_item_age_seconds{{target=\"{get_output_filename(input_url)}\"}} {sm_age_newest}\n")
             f.write(f"# HELP sitemap_oldest_item_age_seconds Age in seconds of the sitemaps oldest object\n")
             f.write(f"# TYPE sitemap_oldest_item_age_seconds gauge\n")
-            f.write(f"sitemap_oldest_item_age_seconds{{target=\"{get_output_filename(input)}\"}} {sm_age_oldest}\n")
+            f.write(f"sitemap_oldest_item_age_seconds{{target=\"{get_output_filename(input_url)}\"}} {sm_age_oldest}\n")
             f.write(f"# HELP sitemap_item_count Number of lastmod items in sitemap\n")
             f.write(f"# TYPE sitemap_item_count gauge\n")
-            f.write(f"sitemap_item_count{{target=\"{get_output_filename(input)}\"}} {sm_item_count}\n")
+            f.write(f"sitemap_item_count{{target=\"{get_output_filename(input_url)}\"}} {sm_item_count}\n")
             f.write(f"# HELP sitemap_file_size_bytes Size of the downloaded sitemap file in bytes\n")
             f.write(f"# TYPE sitemap_file_size_bytes gauge\n")
-            f.write(f"sitemap_file_size_bytes{{target=\"{get_output_filename(input)}\"}} {filesize}\n")
+            f.write(f"sitemap_file_size_bytes{{target=\"{get_output_filename(input_url)}\"}} {filesize}\n")
 
         logger.info("✅ Metrics file updated")
     except Exception:
         logger.exception("❌ Failed to update metrics")
+    finally:
+        if temp_file and os.path.exists(temp_file):
+            try:
+                os.remove(temp_file)
+                logger.debug(f"Cleaned up temp file {temp_file}")
+            except Exception as e:
+                logger.warning(f"Failed to delete temp file {temp_file}: {e}")
 
-# -------------------
-# HTTP server thread
-# -------------------
+# ---------------------- HTTP Server ----------------------
 def start_http_server():
     host = "0.0.0.0"
     port = 8080
     if not is_port_in_use(port):
         with socketserver.TCPServer((host, port), Handler) as httpd:
-            logger.info(f"HTTP server started at {host}:{port}")
+            logger.info(f"Server started at {host}:{port}")
             httpd.serve_forever()
-    else:
-        logger.error(f"Port {port} is already in use, cannot start server")
 
-# -------------------
-# Cron scheduler loop
-# -------------------
-def cron_scheduler():
-    base = dt.datetime.now(dt.timezone.utc)
-    iter = croniter(cron_expr, base)
-    next_run = iter.get_next(dt.datetime)
+# ---------------------- Cron Scheduler ----------------------
+def scheduler_loop():
+    base_time = datetime.now()
+    cron = croniter(cron_expr, base_time)
+    next_run = cron.get_next(datetime)
+
+    logger.info(f"Scheduler started with CRON '{cron_expr}', first run at {next_run}")
 
     while True:
-        now = dt.datetime.now(dt.timezone.utc)
+        now = datetime.now()
         if now >= next_run:
-            logger.info(f"⏰ Running job scheduled at {next_run}")
+            logger.info("⏰ Running scheduled job: write_prom_metrics()")
             write_prom_metrics()
-            next_run = iter.get_next(dt.datetime)
+            next_run = cron.get_next(datetime)
             logger.info(f"Next run scheduled at {next_run}")
         time.sleep(1)
 
-# -------------------
-# Main loop
-# -------------------
+# ---------------------- Main ----------------------
 if __name__ == "__main__":
-    logger.info(f"Starting sitemap checker for {input}")
-    logger.info(f"Using CRON_SCHEDULE='{cron_expr}'")
+    if not input_url:
+        logger.error("❌ No TARGET environment variable set. Exiting.")
+        sys.exit(1)
 
-    # Start server in background
+    logger.info(f"Input URL: {input_url}")
+    logger.info(f"CRON schedule: {cron_expr}")
+
+    # Start HTTP server in background
     threading.Thread(target=start_http_server, daemon=True).start()
 
-    # Start cron scheduler (blocking loop)
-    cron_scheduler()
+    # Start scheduler loop (blocking)
+    scheduler_loop()
