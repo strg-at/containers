@@ -1,4 +1,4 @@
-FROM python:3.11-slim-bookworm@sha256:873f91540d53b36327ed4fb018c9669107a4e2a676719720edb4209c4b15d029
+FROM python:3.11-slim-bookworm@sha256:6bd8610289ef042304ee370bd68ea2406acc9c2275505541c689df4cfc72314a
 
 RUN apt update && apt upgrade -y && \
     apt clean && \
