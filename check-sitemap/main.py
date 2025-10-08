@@ -76,7 +76,7 @@ def is_port_in_use(port: int) -> bool:
 
 # ---------------------- Sitemap Functions ----------------------
 def get_output_filename(url):
-    regex = re.compile('^https?:\/\/([^\/]+)')
+    regex = re.compile(r'^https?:\/\/([^\/]+)')
     match = re.match(regex, url)
     if match:
         return match[1]
