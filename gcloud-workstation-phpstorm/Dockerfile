@@ -1,7 +1,7 @@
 # https://console.cloud.google.com/artifacts/docker/cloud-workstations-images/us-central1/predefined/phpstorm
 FROM europe-west3-docker.pkg.dev/cloud-workstations-images/predefined/phpstorm:latest@sha256:9a597a75c39d3e5ab5ad0fc3c28b7faa5ddd508d983b3790d3ab239a2e819a2c AS base
 
-FROM ubuntu:25.04@sha256:66460d557b25769b102175144d538d88219c077c678a49af4afca6fbfc1b5252
+FROM ubuntu:25.04@sha256:27771fb7b40a58237c98e8d3e6b9ecdd9289cec69a857fccfb85ff36294dac20
 
 # we use the /home directory in a persistent way
 VOLUME ["/home/"]
