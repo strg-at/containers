@@ -42,6 +42,9 @@ RUN wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/shar
 # install repository for devops utilities, see https://docs.wakemeops.com/
 RUN curl -sSL https://raw.githubusercontent.com/upciti/wakemeops/main/assets/install_repository | bash
 
+# install mise
+RUN curl https://mise.run | MISE_INSTALL_PATH=/usr/local/bin/mise sh
+
 RUN apt update && add-apt-repository ppa:git-core/ppa -y && DEBIAN_FRONTEND=noninteractive apt install -y \
   ack-grep \
   ca-certificates \
@@ -64,6 +67,7 @@ RUN apt update && add-apt-repository ppa:git-core/ppa -y && DEBIAN_FRONTEND=noni
   kubectl \
   kustomize \
   make \
+  nix \
   openssh-client \
   openssh-server \
   openssh-sftp-server \
