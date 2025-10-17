@@ -1,0 +1,15 @@
+---
+# Not currently used here, but used to generate the Dockerfile and the _build directory
+version: 3
+images:
+  base_image:
+    name: quay.io/centos/centos:stream10
+dependencies:
+  ansible_core:
+    package_pip: ansible-core==2.19.3
+  ansible_runner:
+    package_pip: ansible-runner==2.4.2
+  galaxy: requirements.yml
+additional_build_steps:
+  append_final:
+    - RUN ansible-playbook -v community.sops.install_localhost
