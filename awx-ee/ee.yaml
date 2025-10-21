@@ -10,6 +10,8 @@ dependencies:
   ansible_runner:
     package_pip: ansible-runner==2.4.2
   galaxy: requirements.yml
+  system:
+    - openssh-clients
 additional_build_steps:
   append_final:
     - RUN ansible-playbook -v community.sops.install_localhost
