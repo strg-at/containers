@@ -79,6 +79,7 @@ RUN apt update && add-apt-repository ppa:git-core/ppa -y && DEBIAN_FRONTEND=noni
   openvpn \
   pre-commit \
   software-properties-common \
+  socat \
   sops \
   sudo \
   systemd \
