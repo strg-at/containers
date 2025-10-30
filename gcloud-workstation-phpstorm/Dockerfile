@@ -78,6 +78,7 @@ RUN apt update && add-apt-repository ppa:git-core/ppa -y && DEBIAN_FRONTEND=noni
   openssh-sftp-server \
   openvpn \
   pre-commit \
+  socat \
   software-properties-common \
   sops \
   sudo \
