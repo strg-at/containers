@@ -1,4 +1,4 @@
-ARG EE_BASE_IMAGE="quay.io/centos/centos:stream10"
+ARG EE_BASE_IMAGE="quay.io/centos/centos:stream10@sha256:f7aae81612bae165772d7f1cd1c5d96c49f21a7508a86e10f528f0f7ace226b7"
 ARG PYCMD="/usr/bin/python3"
 ARG PKGMGR_PRESERVE_CACHE=""
 ARG ANSIBLE_GALAXY_CLI_COLLECTION_OPTS=""
