@@ -56,7 +56,7 @@ If any script was not executed properly, it will be logged to /tmp/custom-script
 You can test the image locally using the following commands inside of this directory:
 
 ```bash
-docker build . -t gcloud-workstation-vscode
+docker build . -t gcloud-workstation-phpstorm
 docker run -it --privileged --tmpfs /run --rm --name gcloud-workstation-vscode gcloud-workstation-phpstorm
 ```
 
