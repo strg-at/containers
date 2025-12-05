@@ -5,4 +5,4 @@ collections:
   - name: operator_sdk.util
     version: "0.5.0"
   - name: community.sops
-    version: "2.2.4"
+    version: "2.2.7"
