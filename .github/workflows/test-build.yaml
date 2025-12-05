@@ -34,6 +34,7 @@ jobs:
 
   docker-build:
     needs: get-changed-files
+    if: ${{ needs.get-changed-files.outputs.files != '[]' }}
     permissions:
       contents: read
       packages: read
@@ -41,22 +42,9 @@ jobs:
       matrix:
         paths: ${{fromJSON(needs.get-changed-files.outputs.files)}}
       fail-fast: false
-    runs-on: ubuntu-latest
-    steps:
-      - name: free-disk-space
-        uses: jlumbroso/free-disk-space@v1.3.1
-        with:
-          tool-cache: false
-          docker-images: false
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: false
-          swap-storage: false
-      - name: docker-build
-        if: ${{ needs.get-changed-files.outputs.files != '[]' }}
-        uses: strg-at/github-workflows/.github/workflows/docker-build.yaml@ee3733899572f6a1de4a2b467e854bb0b2882674 # v2.0.0
-        with:
-          runner: '["ubuntu-latest"]'
-          file: ${{ format('{0}/Dockerfile', matrix.paths) }}
-          context: ${{ matrix.paths }}
+    uses: strg-at/github-workflows/.github/workflows/docker-build.yaml@9f93588e071b9c6fc06329d3c44e845098b3f845 # WIP
+    with:
+      runner: '["ubuntu-latest"]'
+      file: ${{ format('{0}/Dockerfile', matrix.paths) }}
+      free-disk-space: true
+      context: ${{ matrix.paths }}
