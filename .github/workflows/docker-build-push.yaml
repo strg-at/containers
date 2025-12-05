@@ -38,11 +38,12 @@ jobs:
       matrix:
         paths: ${{ fromJSON(needs.get-changed-files.outputs.files) }}
       fail-fast: false
-    uses: strg-at/github-workflows/.github/workflows/docker-build-push-github.yaml@ee3733899572f6a1de4a2b467e854bb0b2882674 # v2.0.0
+    uses: strg-at/github-workflows/.github/workflows/docker-build-push-github.yaml@6ff2de922df44f9ff5c0e97c20b1acea474e9919 # WIP
     with:
       runner: '["ubuntu-latest"]'
       subpath: ${{ matrix.paths }}
       file: ${{ format('{0}/Dockerfile', matrix.paths) }}
+      free-disk-space: true
       context: ${{ matrix.paths }}
       tags: |
         ${{ github.sha }}

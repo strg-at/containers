@@ -42,7 +42,7 @@ jobs:
       matrix:
         paths: ${{fromJSON(needs.get-changed-files.outputs.files)}}
       fail-fast: false
-    uses: strg-at/github-workflows/.github/workflows/docker-build.yaml@9f93588e071b9c6fc06329d3c44e845098b3f845 # WIP
+    uses: strg-at/github-workflows/.github/workflows/docker-build.yaml@6ff2de922df44f9ff5c0e97c20b1acea474e9919 # WIP
     with:
       runner: '["ubuntu-latest"]'
       file: ${{ format('{0}/Dockerfile', matrix.paths) }}
