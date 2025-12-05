@@ -32,6 +32,17 @@ jobs:
       dir_names_exclude_current_dir: true
       dir_names_max_depth: 1
 
+  free-disk-space:
+    uses: jlumbroso/free-disk-space@main
+    with:
+      tool-cache: true
+      docker-images: false
+      android: true
+      dotnet: true
+      haskell: true
+      large-packages: true
+      swap-storage: false
+
   docker-build:
     needs: get-changed-files
     if: ${{ needs.get-changed-files.outputs.files != '[]' }}
