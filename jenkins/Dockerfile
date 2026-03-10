@@ -1,4 +1,4 @@
-FROM docker.io/jenkins/jenkins:2.479.2-jdk17@sha256:e728082cd6a2710840ef7d9fdcdc93408eb488aa05d10bc92f4454254e22cc4e
+FROM docker.io/jenkins/jenkins:2.554-jdk21
 
 USER root
 
@@ -41,8 +41,8 @@ USER jenkins
 
 # install pyenv, python 3.6.8 and create venv
 RUN curl https://pyenv.run | bash && \
-    CC=clang ~/.pyenv/bin/pyenv install 3.6.8 && \
-    ~/.pyenv/bin/pyenv virtualenv 3.6.8 timeline-service-venv
+    CC=clang ~/.pyenv/bin/pyenv install 3.6.15 && \
+    ~/.pyenv/bin/pyenv virtualenv 3.6.15 timeline-service-venv
 
 # install plugins
 COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
