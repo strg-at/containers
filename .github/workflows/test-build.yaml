@@ -6,8 +6,11 @@ on:
     types:
       - opened
       - synchronize
-    paths-ignore:
-      - .github/**
+    paths:
+      - "**/*"
+      - "!.github/**"
+      - "!**/README.md"
+      - "!*"
 
 concurrency:
   group: ${{ github.head_ref }}
@@ -17,17 +20,21 @@ jobs:
   get-changed-files:
     permissions:
       contents: read
-    uses: strg-at/github-workflows/.github/workflows/get-changed-files.yaml@fe8aec8df10849c97cc87d1d2e1448d03121aceb # v1.10.0
+    uses: strg-at/github-workflows/.github/workflows/get-changed-files.yaml@ae16851644aa20761762716e874cebdf811fbd40 # v2.1.4
     with:
       runner: '["ubuntu-latest"]'
       files: |
-        **/Dockerfile
+        **/*
+        !.github/**
+        !.taskfiles/**
       matrix: true
       dir_names: true
+      dir_names_exclude_current_dir: true
+      dir_names_max_depth: 1
 
   docker-build:
     needs: get-changed-files
-    if: ${{ needs.get-changed-files.outputs.files != '[]'}}
+    if: ${{ needs.get-changed-files.outputs.files != '[]' }}
     permissions:
       contents: read
       packages: read
@@ -35,8 +42,9 @@ jobs:
       matrix:
         paths: ${{fromJSON(needs.get-changed-files.outputs.files)}}
       fail-fast: false
-    uses: strg-at/github-workflows/.github/workflows/docker-build.yaml@fe8aec8df10849c97cc87d1d2e1448d03121aceb # v1.10.0
+    uses: strg-at/github-workflows/.github/workflows/docker-build.yaml@ae16851644aa20761762716e874cebdf811fbd40 # v2.1.4
     with:
       runner: '["ubuntu-latest"]'
-      file: ${{ matrix.paths }}/Dockerfile
+      file: ${{ format('{0}/Dockerfile', matrix.paths) }}
+      free-disk-space: true
       context: ${{ matrix.paths }}
