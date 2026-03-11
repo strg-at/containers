@@ -1,4 +1,4 @@
-FROM docker.io/jenkins/jenkins:2.554-jdk21
+FROM docker.io/jenkins/jenkins:2.554-jdk25
 
 USER root
 
