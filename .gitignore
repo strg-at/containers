@@ -12,3 +12,6 @@ Thumbs.db
 # Env files
 *.envrc
 *.env
+
+# Dependency directories
+node_modules/

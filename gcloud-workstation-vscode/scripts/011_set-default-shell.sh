@@ -4,9 +4,6 @@
 chsh -s $(which zsh) root || true
 chsh -s $(which zsh) user || true
 
-# Hack to get the latest ruby version installed
-RUBY_VER=$(ls -alt /home/user/.local/share/gem/ruby | sed -n '2p' | cut -d ' ' -f9)
-
 # Only set the default zshrc configuration if the file doesn't exist
 if [ ! -f /root/.zshrc ]; then
     cat <<'EOF' >/root/.zshrc
@@ -51,9 +48,7 @@ alias docker-compose='docker compose'
 EOF
 fi
 
+# Only create a .zshrc file in the user home directory if it doesn't exist
 if [ ! -f /home/user/.zshrc ]; then
-    cp /root/.zshrc /home/user/.zshrc
-    echo "path+=('/home/user/.local/share/gem/ruby/$RUBY_VER/bin')" >> /home/user/.zshrc
+    cp /root/.zshrc /home/user/.zshrc && chown user:user /home/user/.zshrc
 fi
-
-chown user:user /home/user/.zshrc
