@@ -15,6 +15,20 @@
 
 STRG. custom actions runner
 
+## How to test
+
+build container
+
+```console
+docker buildx build -t actions-runner ./actions-runner
+```
+
+run container
+
+```console
+docker run --rm -it --name actions-runner actions-runner
+```
+
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 
