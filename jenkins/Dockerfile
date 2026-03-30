@@ -1,4 +1,4 @@
-FROM docker.io/jenkins/jenkins:2.554-jdk25
+FROM docker.io/jenkins/jenkins:2.556-jdk25@sha256:73d76e79aecfdf741177c76e8df786126ccbad1b8a9a1d1cbe78d71afc896287
 
 USER root
 
