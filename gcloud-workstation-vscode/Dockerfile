@@ -29,7 +29,7 @@ RUN install -m 0755 -d /etc/apt/keyrings \
   $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
   tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-COPY ./config/daemon.json /etc/docker/daemon.json
+COPY ./config/docker/daemon.json /etc/docker/daemon.json
 
 # preparing google sdk installation
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
