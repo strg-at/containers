@@ -29,6 +29,8 @@ RUN install -m 0755 -d /etc/apt/keyrings \
   $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
   tee /etc/apt/sources.list.d/docker.list > /dev/null
 
+COPY ./config/docker/daemon.json /etc/docker/daemon.json
+
 # preparing google sdk installation
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
   && echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
@@ -60,6 +62,7 @@ RUN apt update && add-apt-repository ppa:git-core/ppa -y && DEBIAN_FRONTEND=noni
   docker-ce-cli \
   docker-compose-plugin \
   flux \
+  fuse-overlayfs \
   gettext-base \
   git \
   gnupg \
