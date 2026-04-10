@@ -62,6 +62,7 @@ RUN apt update && add-apt-repository ppa:git-core/ppa -y && DEBIAN_FRONTEND=noni
   docker-ce-cli \
   docker-compose-plugin \
   flux \
+  fuse-overlayfs \
   gettext-base \
   git \
   gnupg \
