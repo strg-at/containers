@@ -1,0 +1,11 @@
+{
+  "storage-driver": "fuse-overlayfs",
+  "features": {
+    "buildkit": true
+  },
+  "builder": {
+    "gc": {
+      "enabled": true
+    }
+  }
+}

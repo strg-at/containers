@@ -15,8 +15,10 @@ def getSnapshotRepository(os_instance, snapshotRepository):
             return True
     except NotFoundError:
         logging.error(f"The repository {snapshotRepository} wasn't found. Exiting.")
+        exit(1)
     except Exception as e:
         logging.error(f"There was an exception: {e}. Exiting.")
+        exit(1)
     return False
 
 def getSnapshots(os_instance, snapshotRepository):
@@ -24,6 +26,7 @@ def getSnapshots(os_instance, snapshotRepository):
         return client.snapshot.SnapshotClient(os_instance).get(repository=snapshotRepository, snapshot='_all')
     except Exception as e:
         logging.error(f"There was an exception: {e}. Exiting.")
+        exit(1)
     return False
 
 def getSnapshotDetails(os_instance, snapshotRepository, snapshotIndex):
@@ -79,7 +82,13 @@ def main():
                 print(f"The last snapshot was successfully executed today {todaysDate}.")
             else:
                 logging.error("No snapshot has been successfully created today, please manually check the configuration!")
-        else: logging.error("No snapshots found in the repository!")
+                exit(1)
+        else:
+            logging.error("No snapshots found in the repository!")
+            exit(1)
+    else:
+        logging.error("The snapshot repository doesn't exist, please check the configuration!")
+        exit(1)
 
 if __name__ == "__main__":
     main()

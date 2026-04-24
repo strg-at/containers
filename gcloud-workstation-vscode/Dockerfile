@@ -1,5 +1,5 @@
 # https://console.cloud.google.com/artifacts/docker/cloud-workstations-images/us-central1/predefined/code-oss
-FROM europe-west3-docker.pkg.dev/cloud-workstations-images/predefined/code-oss:latest@sha256:011600462b45662000ecb2887e4746e1a6e133cba05a884ce67fbee8a170f07c AS base
+FROM europe-west3-docker.pkg.dev/cloud-workstations-images/predefined/code-oss:latest@sha256:e7a0a38b3ca99fdc4803af8360bf216bac3da9e325e5a87d5ddc015ccd610875 AS base
 
 FROM ubuntu:plucky-20251001@sha256:27771fb7b40a58237c98e8d3e6b9ecdd9289cec69a857fccfb85ff36294dac20
 
@@ -28,6 +28,8 @@ RUN install -m 0755 -d /etc/apt/keyrings \
   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
   $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
   tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+COPY ./config/docker/daemon.json /etc/docker/daemon.json
 
 # preparing google sdk installation
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
@@ -60,6 +62,7 @@ RUN apt update && add-apt-repository ppa:git-core/ppa -y && DEBIAN_FRONTEND=noni
   docker-ce-cli \
   docker-compose-plugin \
   flux \
+  fuse-overlayfs \
   gettext-base \
   git \
   gnupg \

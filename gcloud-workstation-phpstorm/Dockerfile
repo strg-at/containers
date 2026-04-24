@@ -1,5 +1,5 @@
 # https://console.cloud.google.com/artifacts/docker/cloud-workstations-images/us-central1/predefined/phpstorm
-FROM europe-west3-docker.pkg.dev/cloud-workstations-images/predefined/phpstorm:latest@sha256:de31c26f5f5eadb6988382b6531e5ca946fc3b46653d2cf2dcba5cf8ab11b54d AS base
+FROM europe-west3-docker.pkg.dev/cloud-workstations-images/predefined/phpstorm:latest@sha256:526e53d21b06d3c8327a0e72ee2b0dd05397c321eb3fc400851f3f71e9416678 AS base
 
 FROM ubuntu:plucky-20251001@sha256:27771fb7b40a58237c98e8d3e6b9ecdd9289cec69a857fccfb85ff36294dac20
 
@@ -28,6 +28,8 @@ RUN install -m 0755 -d /etc/apt/keyrings \
   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
   $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
   tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+COPY ./config/docker/daemon.json /etc/docker/daemon.json
 
 # preparing google sdk installation
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
@@ -60,6 +62,7 @@ RUN apt update && add-apt-repository ppa:git-core/ppa -y && DEBIAN_FRONTEND=noni
   docker-ce-cli \
   docker-compose-plugin \
   flux \
+  fuse-overlayfs \
   gettext-base \
   git \
   gnupg \
