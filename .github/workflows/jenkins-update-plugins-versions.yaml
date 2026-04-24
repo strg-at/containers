@@ -1,0 +1,55 @@
+---
+name: Update Jenkins plugins for new Jenkins version
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to run against (e.g. renovate/docker.io-jenkins-jenkins-2.x*)"
+        required: true
+        type: string
+
+jobs:
+  update-jenkins-plugins:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Jenkins version
+        id: jenkins-version
+        run: |
+          VERSION=$(grep -oP '(?<=jenkins/jenkins:)\S+' jenkins/Dockerfile | head -1)
+
+      - name: Resolve compatible plugins
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/work" \
+            --entrypoint jenkins-plugin-cli \
+            "jenkins/jenkins:${{ steps.jenkins-version.outputs.version }}" \
+              --plugin-file /work/jenkins/plugins.txt \
+              --jenkins-version "${{ steps.jenkins-version.outputs.version }}" \
+              --view-security-warnings \
+              --output txt \
+          > /tmp/plugins-updated.txt
+          cat /tmp/plugins-updated.txt
+          #mv /tmp/plugins-updated.txt "${{ github.workspace }}/jenkins/plugins.txt"
+
+#      - name: Commit updated plugins.txt
+#        run: |
+#          git config user.name  "github-actions[bot]"
+#          git config user.email "github-actions[bot]@users.noreply.github.com"
+#
+#          if git diff --quiet plugins.txt; then
+#            echo "No plugin changes needed."
+#          else
+#            git add plugins.txt
+#            git commit -m "chore: update plugins.txt for Jenkins ${{ steps.jenkins-version.outputs.version }}"
+#            git push
+#          fi
