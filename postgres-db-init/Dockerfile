@@ -1,4 +1,4 @@
-FROM postgres:17.10@sha256:538bdb8c6b278f2f09070a4d79f04a83363a795ed23ec0d92d6b70cabc398eae
+FROM postgres:17.10@sha256:3a83c3e2e6f5507ba4bfd2f2981936d055f81a40c08d7ea80f7a5e46d6512d6e
 
 LABEL name=@strg-at/postgres-db-init
 LABEL maintainer=STRG.
