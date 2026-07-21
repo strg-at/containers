@@ -27,6 +27,8 @@ database (schema) initialization helper
 | **POSTGRES_PASS**                | postgres password                              |
 | **POSTGRES_DB**                  | postgres database                              |
 | **POSTGRES_EXTENSION_UUID_OSSP** | create extension uuid-ossp (optional, boolean) |
+| **POSTGRES_EXTENSION_ANON**      | create extension anon (optional, boolean)      |
+| **POSTGRES_EXTENSION_VECTOR**    | create extension vector (optional, boolean)    |
 
 | (\*) required
 
