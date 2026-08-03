@@ -47,11 +47,6 @@ RUN curl -sSL https://raw.githubusercontent.com/upciti/wakemeops/main/assets/ins
 # install mise
 RUN curl https://mise.run | MISE_INSTALL_PATH=/usr/local/bin/mise sh
 
-# install helm 3
-RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 \
-  && chmod 700 get_helm.sh \
-  && ./get_helm.sh
-
 RUN apt update && add-apt-repository ppa:git-core/ppa -y && DEBIAN_FRONTEND=noninteractive apt install -y \
   ack-grep \
   ca-certificates \
@@ -69,6 +64,7 @@ RUN apt update && add-apt-repository ppa:git-core/ppa -y && DEBIAN_FRONTEND=noni
   go-task=3.41.0-1~ops2deb \
   google-cloud-cli \
   gpg \
+  helm \
   htop \
   k9s \
   kind \
