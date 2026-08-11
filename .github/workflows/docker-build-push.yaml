@@ -15,17 +15,35 @@ jobs:
   get-changed-files:
     permissions:
       contents: read
-    uses: strg-at/github-workflows/.github/workflows/get-changed-files.yaml@42c94293164b81d878edbf35a402a246c102a196 # v2.2.1
+    uses: strg-at/github-workflows/.github/workflows/get-changed-files.yaml@948a59ecdf5297443483028e7c627d1afca14d7d # v2.3.0
     with:
       runner: '["ubuntu-latest"]'
       files: |
         **/*
         !.github/**
         !.taskfiles/**
+        !approve-merge-pr/**
+        !mysql-db-init/**
+        !postgres-db-init/**
       matrix: true
       dir_names: true
       dir_names_exclude_current_dir: true
       dir_names_max_depth: 1
+
+  get-changed-files-multiarch:
+    permissions:
+      contents: read
+    uses: strg-at/github-workflows/.github/workflows/get-changed-files.yaml@948a59ecdf5297443483028e7c627d1afca14d7d # v2.3.0
+    with:
+      runner: '["ubuntu-latest"]'
+      matrix: true
+      files-yaml: |
+        approve-merge-pr:
+          - approve-merge-pr/**
+        mysql-db-init:
+          - mysql-db-init/**
+        postgres-db-init:
+          - postgres-db-init/**
 
   docker-build-push:
     needs: [get-changed-files]
@@ -38,13 +56,36 @@ jobs:
       matrix:
         paths: ${{ fromJSON(needs.get-changed-files.outputs.files) }}
       fail-fast: false
-    uses: strg-at/github-workflows/.github/workflows/docker-build-push-github.yaml@42c94293164b81d878edbf35a402a246c102a196 # v2.2.1
+    uses: strg-at/github-workflows/.github/workflows/docker-build-push-github.yaml@948a59ecdf5297443483028e7c627d1afca14d7d # v2.3.0
     with:
       runner: '["ubuntu-latest"]'
       subpath: ${{ matrix.paths }}
       file: ${{ format('{0}/Dockerfile', matrix.paths) }}
       free-disk-space: true
       context: ${{ matrix.paths }}
+      tags: |
+        ${{ github.sha }}
+        type=raw, value=rolling
+
+  docker-build-push-multiarch:
+    needs: [get-changed-files-multiarch]
+    if: ${{ needs.get-changed-files-multiarch.outputs.changed-keys != '[]' }}
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+    strategy:
+      matrix:
+        paths: ${{ fromJSON(needs.get-changed-files-multiarch.outputs.changed-keys) }}
+      fail-fast: false
+    uses: strg-at/github-workflows/.github/workflows/docker-build-push-github.yaml@948a59ecdf5297443483028e7c627d1afca14d7d # v2.3.0
+    with:
+      runner: '["ubuntu-latest"]'
+      subpath: ${{ matrix.paths }}
+      file: ${{ format('{0}/Dockerfile', matrix.paths) }}
+      free-disk-space: true
+      context: ${{ matrix.paths }}
+      platforms: linux/amd64,linux/arm64
       tags: |
         ${{ github.sha }}
         type=raw, value=rolling
