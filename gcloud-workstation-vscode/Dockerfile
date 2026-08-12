@@ -61,7 +61,7 @@ RUN apt update && add-apt-repository ppa:git-core/ppa -y && DEBIAN_FRONTEND=noni
   gettext-base \
   git \
   gnupg \
-  go-task=3.41.0-1~ops2deb \
+  go-task \
   google-cloud-cli \
   gpg \
   helm \
