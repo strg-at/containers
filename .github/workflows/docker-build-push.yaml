@@ -15,7 +15,7 @@ jobs:
   get-changed-files:
     permissions:
       contents: read
-    uses: strg-at/github-workflows/.github/workflows/get-changed-files.yaml@948a59ecdf5297443483028e7c627d1afca14d7d # v2.3.0
+    uses: strg-at/github-workflows/.github/workflows/get-changed-files.yaml@2c2ab5cac48aa7c90d103cd6552ca5ef013cad81 # v2.4.0
     with:
       runner: '["ubuntu-latest"]'
       files: |
@@ -33,7 +33,7 @@ jobs:
   get-changed-files-multiarch:
     permissions:
       contents: read
-    uses: strg-at/github-workflows/.github/workflows/get-changed-files.yaml@948a59ecdf5297443483028e7c627d1afca14d7d # v2.3.0
+    uses: strg-at/github-workflows/.github/workflows/get-changed-files.yaml@2c2ab5cac48aa7c90d103cd6552ca5ef013cad81 # v2.4.0
     with:
       runner: '["ubuntu-latest"]'
       matrix: true
@@ -56,7 +56,7 @@ jobs:
       matrix:
         paths: ${{ fromJSON(needs.get-changed-files.outputs.files) }}
       fail-fast: false
-    uses: strg-at/github-workflows/.github/workflows/docker-build-push-github.yaml@948a59ecdf5297443483028e7c627d1afca14d7d # v2.3.0
+    uses: strg-at/github-workflows/.github/workflows/docker-build-push-github.yaml@2c2ab5cac48aa7c90d103cd6552ca5ef013cad81 # v2.4.0
     with:
       runner: '["ubuntu-latest"]'
       subpath: ${{ matrix.paths }}
@@ -78,7 +78,7 @@ jobs:
       matrix:
         paths: ${{ fromJSON(needs.get-changed-files-multiarch.outputs.changed-keys) }}
       fail-fast: false
-    uses: strg-at/github-workflows/.github/workflows/docker-build-push-github.yaml@948a59ecdf5297443483028e7c627d1afca14d7d # v2.3.0
+    uses: strg-at/github-workflows/.github/workflows/docker-build-push-github.yaml@2c2ab5cac48aa7c90d103cd6552ca5ef013cad81 # v2.4.0
     with:
       runner: '["ubuntu-latest"]'
       subpath: ${{ matrix.paths }}
