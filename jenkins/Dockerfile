@@ -1,4 +1,4 @@
-FROM docker.io/jenkins/jenkins:2.577-jdk25@sha256:69bc8e22df80ad708fc0cebbbeaeca3813ca2fa53f5fbb3cc361941e7ea5e430
+FROM docker.io/jenkins/jenkins:2.581-jdk25@sha256:d01d5f4918085cd1884ffc88836b32e5267de553c8270b432424e8dfa3473fd4
 
 USER root
 
@@ -16,7 +16,7 @@ RUN apt-get update && \
         rsync wget python3 build-essential clang \
         libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev \
         curl llvm libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev \
-        liblzma-dev google-cloud-cli google-cloud-sdk-gke-gcloud-auth-plugin \
+        liblzma-dev google-cloud-cli google-cloud-cli-gke-gcloud-auth-plugin \
         php7.1 php7.1-cli php7.1-xml php7.1-zip \
         php7.2 php7.2-cli php7.2-xml php7.2-zip \
         php7.3 php7.3-cli php7.3-xml php7.3-zip \
