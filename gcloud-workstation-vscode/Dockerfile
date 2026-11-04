@@ -80,7 +80,7 @@ RUN apt update && add-apt-repository ppa:git-core/ppa -y && DEBIAN_FRONTEND=noni
   software-properties-common \
   socat \
   sops \
-  sudo \
+  sudo-rs \
   systemd \
   terraform \
   terraform-docs \
