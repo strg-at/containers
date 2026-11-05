@@ -1,4 +1,4 @@
-FROM debian:bookworm-slim@sha256:b4aa902587c2e61ce789849cb54c332b0400fe27b1ee33af4669e1f7e7c3e22f
+FROM debian:bookworm-slim@sha256:734a72b3d6142a71993b4bc580ca01d8ca687f77a2c422d96a961d3376b179bc
 
 # renovate: depName=openvpn
 ENV OPENVPN_VERSION="2.6.3-1+deb12u2"
