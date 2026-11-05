@@ -1,7 +1,7 @@
 # https://console.cloud.google.com/artifacts/docker/cloud-workstations-images/us-central1/predefined/phpstorm
 FROM europe-west3-docker.pkg.dev/cloud-workstations-images/predefined/phpstorm:latest@sha256:672385c29699791ca48f4803c0f4ad38bb8ff6cbf4b3da14f0de0d65da2c22e1 AS base
 
-FROM ubuntu:plucky-20251001@sha256:27771fb7b40a58237c98e8d3e6b9ecdd9289cec69a857fccfb85ff36294dac20
+FROM ubuntu:26.04@sha256:6a06111c3b0a8600feadb270aec771dc239bf407b25625f93f44ab00e11f4d3c
 
 # we use the /home directory in a persistent way
 VOLUME ["/home/"]
@@ -80,7 +80,7 @@ RUN apt update && add-apt-repository ppa:git-core/ppa -y && DEBIAN_FRONTEND=noni
   socat \
   software-properties-common \
   sops \
-  sudo \
+  sudo-rs \
   systemd \
   terraform \
   terraform-docs \
