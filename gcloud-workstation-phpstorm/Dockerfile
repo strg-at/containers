@@ -60,6 +60,7 @@ RUN apt update && add-apt-repository ppa:git-core/ppa -y && DEBIAN_FRONTEND=noni
   fuse-overlayfs \
   gettext-base \
   git \
+  github-cli \
   gnupg \
   go-task \
   google-cloud-cli \
