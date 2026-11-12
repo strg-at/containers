@@ -2,7 +2,6 @@
 *
 
 # Allow files and directories
-!.dockerignore
 !main.py
 !pyproject.toml
 !uv.lock
