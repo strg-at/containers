@@ -80,6 +80,9 @@ def main() -> None:
     except SnapshotCheckError as e:
         logging.error(str(e))
         sys.exit(1)
+    except Exception as e:
+        logging.error(f"There was an exception: {e}. Exiting.")
+        sys.exit(1)
     print(message)
 
 
