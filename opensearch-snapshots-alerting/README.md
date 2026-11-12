@@ -14,17 +14,22 @@ Checks that OpenSearch created a snapshot today. The job exits with code 1 if it
 | **OPENSEARCH_TLS_ENABLED**         | use TLS (optional, default `true`)              |
 | **OPENSEARCH_TLS_VERIFY_CERTS**    | verify certificates (optional, default `false`) |
 
-## Test
+## How to test
 
-Run the job against an OpenSearch cluster that has a snapshot repository:
+build container
 
-```sh
-OPENSEARCH_INSTANCE=localhost \
-OPENSEARCH_PORT=9200 \
-OPENSEARCH_SNAPSHOT_REPOSITORY=strg \
-OPENSEARCH_TLS_ENABLED=false \
-uv run main.py
-echo $?
+```shell
+docker build -t opensearch-snapshots-alerting ./opensearch-snapshots-alerting
 ```
 
-Exit code `0` means a snapshot succeeded today. Exit code `1` means it did not, and the job logs the error.
+run container against a port-forwarded OpenSearch cluster that has a snapshot repository
+
+```shell
+docker run --rm --network host --name opensearch-snapshots-alerting \
+  --env OPENSEARCH_INSTANCE="localhost" \
+  --env OPENSEARCH_PORT="9200" \
+  --env OPENSEARCH_SNAPSHOT_REPOSITORY="repository" \
+  opensearch-snapshots-alerting
+```
+
+exit code `0` means a snapshot succeeded today. exit code `1` means it did not, and the job logs the error.
