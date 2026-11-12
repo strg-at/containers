@@ -10,6 +10,7 @@ from opensearchpy import NotFoundError, OpenSearch
 log_format = "%(name)s - %(levelname)s - %(message)s"
 logging.basicConfig(format=log_format, level=logging.ERROR)
 
+# A GCP alert in terraform-infra matches these log texts. Do not change them.
 NO_SNAPSHOT_TODAY_MESSAGE = (
     "No snapshot has been successfully created today, please manually check the configuration!"
 )
