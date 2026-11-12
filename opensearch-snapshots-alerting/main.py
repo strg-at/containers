@@ -2,18 +2,17 @@ import logging
 import os
 import sys
 from collections.abc import Mapping
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from typing import Any
 
 from opensearchpy import NotFoundError, OpenSearch
 
 log_format = "%(name)s - %(levelname)s - %(message)s"
 logging.basicConfig(format=log_format, level=logging.ERROR)
+logger = logging.getLogger(__name__)
 
 # A GCP alert in terraform-infra matches these log texts. Do not change them.
-NO_SNAPSHOT_TODAY_MESSAGE = (
-    "No snapshot has been successfully created today, please manually check the configuration!"
-)
+NO_SNAPSHOT_TODAY_MESSAGE = "No snapshot has been successfully created today, please manually check the configuration!"
 NO_SNAPSHOTS_MESSAGE = "No snapshots found in the repository!"
 REPOSITORY_NOT_FOUND_MESSAGE = "The repository {repository} wasn't found. Exiting."
 EXCEPTION_MESSAGE = "There was an exception: {error}. Exiting."
@@ -49,7 +48,7 @@ def check_snapshots(snapshots: list[dict[str, Any]], today: date) -> str:
         raise SnapshotCheckError(NO_SNAPSHOT_TODAY_MESSAGE)
 
     latest = max(finished, key=lambda s: s["end_time_in_millis"])
-    end_date = datetime.fromtimestamp(latest["end_time_in_millis"] / 1000, tz=timezone.utc).date()
+    end_date = datetime.fromtimestamp(latest["end_time_in_millis"] / 1000, tz=UTC).date()
     if latest.get("state") == "SUCCESS" and end_date == today:
         return f"The last snapshot was successfully executed today {today}."
     raise SnapshotCheckError(NO_SNAPSHOT_TODAY_MESSAGE)
@@ -74,18 +73,18 @@ def main() -> None:
     port = os.getenv("OPENSEARCH_PORT")
     repository = os.getenv("OPENSEARCH_SNAPSHOT_REPOSITORY")
     if not instance or not port or not repository:
-        logging.error("At least one of the required environment variable is not set.")
+        logger.error("At least one of the required environment variable is not set.")
         sys.exit(1)
 
     try:
         client = create_client(os.environ)
         snapshots = fetch_snapshots(client, repository)
-        message = check_snapshots(snapshots, datetime.now(timezone.utc).date())
+        message = check_snapshots(snapshots, datetime.now(UTC).date())
     except SnapshotCheckError as e:
-        logging.error(str(e))
+        logger.error(str(e))
         sys.exit(1)
-    except Exception as e:
-        logging.error(EXCEPTION_MESSAGE.format(error=e))
+    except Exception as e:  # noqa: BLE001
+        logger.error(EXCEPTION_MESSAGE.format(error=e))
         sys.exit(1)
     print(message)
 
