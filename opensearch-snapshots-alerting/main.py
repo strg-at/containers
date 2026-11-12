@@ -3,7 +3,7 @@ import os
 import sys
 from collections.abc import Mapping
 from datetime import UTC, date, datetime
-from typing import Any
+from typing import TypedDict
 
 from opensearchpy import NotFoundError, OpenSearch
 
@@ -22,13 +22,18 @@ class SnapshotCheckError(Exception):
     pass
 
 
+class Snapshot(TypedDict, total=False):
+    state: str
+    end_time_in_millis: int
+
+
 def env_flag(value: str | None, default: bool) -> bool:
     if value is None:
         return default
     return value.strip().lower() in ("true", "1")
 
 
-def fetch_snapshots(client: OpenSearch, repository: str) -> list[dict[str, Any]]:
+def fetch_snapshots(client: OpenSearch, repository: str) -> list[Snapshot]:
     try:
         client.snapshot.get_repository(repository=repository)
         response = client.snapshot.get(repository=repository, snapshot="_all")
@@ -39,7 +44,7 @@ def fetch_snapshots(client: OpenSearch, repository: str) -> list[dict[str, Any]]
     return response["snapshots"]
 
 
-def check_snapshots(snapshots: list[dict[str, Any]], today: date) -> str:
+def check_snapshots(snapshots: list[Snapshot], today: date) -> str:
     if not snapshots:
         raise SnapshotCheckError(NO_SNAPSHOTS_MESSAGE)
 
@@ -47,8 +52,8 @@ def check_snapshots(snapshots: list[dict[str, Any]], today: date) -> str:
     if not finished:
         raise SnapshotCheckError(NO_SNAPSHOT_TODAY_MESSAGE)
 
-    latest = max(finished, key=lambda s: s["end_time_in_millis"])
-    end_date = datetime.fromtimestamp(latest["end_time_in_millis"] / 1000, tz=UTC).date()
+    latest = max(finished, key=lambda s: s.get("end_time_in_millis", 0))
+    end_date = datetime.fromtimestamp(latest.get("end_time_in_millis", 0) / 1000, tz=UTC).date()
     if latest.get("state") == "SUCCESS" and end_date == today:
         return f"The last snapshot was successfully executed today {today}."
     raise SnapshotCheckError(NO_SNAPSHOT_TODAY_MESSAGE)
