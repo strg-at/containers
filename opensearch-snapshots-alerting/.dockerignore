@@ -1,7 +1,7 @@
-# Firstly ignoring all
+# Ignore everything
 *
 
-# Then whitelist the files that should be included
+# Allow files and directories
 !.dockerignore
 !main.py
 !pyproject.toml
