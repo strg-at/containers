@@ -1,94 +1,87 @@
-#!/usr/bin/env python
+import logging
+import os
+import sys
+from collections.abc import Mapping
+from datetime import date, datetime, timezone
+from typing import Any
 
-from opensearchpy import OpenSearch, client, NotFoundError
-from datetime import datetime, date
-import os, logging
+from opensearchpy import NotFoundError, OpenSearch
 
-# General logging configuration
-log_format = '%(name)s - %(levelname)s - %(message)s'
+log_format = "%(name)s - %(levelname)s - %(message)s"
 logging.basicConfig(format=log_format, level=logging.ERROR)
-logging.getLogger(__name__)
 
-def getSnapshotRepository(os_instance, snapshotRepository):
+NO_SNAPSHOT_TODAY_MESSAGE = (
+    "No snapshot has been successfully created today, please manually check the configuration!"
+)
+
+
+class SnapshotCheckError(Exception):
+    pass
+
+
+def env_flag(value: str | None, default: bool) -> bool:
+    if value is None:
+        return default
+    return value.strip().lower() in ("true", "1")
+
+
+def fetch_snapshots(client: OpenSearch, repository: str) -> list[dict[str, Any]]:
     try:
-        if(client.snapshot.SnapshotClient(os_instance).get_repository(repository=snapshotRepository)):
-            return True
-    except NotFoundError:
-        logging.error(f"The repository {snapshotRepository} wasn't found. Exiting.")
-        exit(1)
+        client.snapshot.get_repository(repository=repository)
+        response = client.snapshot.get(repository=repository, snapshot="_all")
+    except NotFoundError as e:
+        raise SnapshotCheckError(f"The repository {repository} wasn't found. Exiting.") from e
     except Exception as e:
-        logging.error(f"There was an exception: {e}. Exiting.")
-        exit(1)
-    return False
+        raise SnapshotCheckError(f"There was an exception: {e}. Exiting.") from e
+    return response["snapshots"]
 
-def getSnapshots(os_instance, snapshotRepository):
-    try:
-        return client.snapshot.SnapshotClient(os_instance).get(repository=snapshotRepository, snapshot='_all')
-    except Exception as e:
-        logging.error(f"There was an exception: {e}. Exiting.")
-        exit(1)
-    return False
 
-def getSnapshotDetails(os_instance, snapshotRepository, snapshotIndex):
-    try:
-        snapshotsList = getSnapshots(os_instance, snapshotRepository)
-        if(len(snapshotsList["snapshots"]) > 0):
-            state = snapshotsList["snapshots"][snapshotIndex]["state"]
-            date = datetime.strptime(snapshotsList["snapshots"][snapshotIndex]["end_time"],'%Y-%m-%dT%H:%M:%S.%fZ').strftime("%m/%d/%y")
-            name = snapshotsList["snapshots"][snapshotIndex]["snapshot"]
-            details = {'state': state, 'date': date, 'name': name }
-            return details
-    except Exception as e:
-        logging.error(f"There was an exception: {e}. Exiting.")
-    return False
+def check_snapshots(snapshots: list[dict[str, Any]], today: date) -> str:
+    if not snapshots:
+        raise SnapshotCheckError("No snapshots found in the repository!")
 
-def main():
-    instance = os.getenv("OPENSEARCH_INSTANCE")
-    opensearchUsername = os.getenv("OPENSEARCH_USERNAME")
-    opensearchPassword = os.getenv("OPENSEARCH_PASSWORD")
-    opensearchPort = os.getenv("OPENSEARCH_PORT")
-    snapshotRepository = os.getenv("OPENSEARCH_SNAPSHOT_REPOSITORY")
-    sslEnabled = os.getenv("OPENSEARCH_TLS_ENABLED", "True") in ("true", "True", 1)
-    verifyCerts = os.getenv("OPENSEARCH_TLS_VERIFY_CERTS", "False") in ("true", "True", 1)
+    finished = [s for s in snapshots if s.get("end_time_in_millis")]
+    if not finished:
+        raise SnapshotCheckError(NO_SNAPSHOT_TODAY_MESSAGE)
 
-    if(not instance or not opensearchPort or not snapshotRepository):
-        logging.error(f"At least one of the required environment variable is not set.")
-        exit(1)
+    latest = max(finished, key=lambda s: s["end_time_in_millis"])
+    end_date = datetime.fromtimestamp(latest["end_time_in_millis"] / 1000, tz=timezone.utc).date()
+    if latest.get("state") == "SUCCESS" and end_date == today:
+        return f"The last snapshot was successfully executed today {today}."
+    raise SnapshotCheckError(NO_SNAPSHOT_TODAY_MESSAGE)
 
-    os_client = OpenSearch(
-        hosts = [{'host': instance, 'port': opensearchPort}],
-        http_auth = (opensearchUsername, opensearchPassword) if opensearchUsername and opensearchPassword else "",
-        http_compress = True,
-        use_ssl = sslEnabled,
-        verify_certs = verifyCerts,
-        ssl_assert_hostname = False,
-        ssl_show_warn = False
+
+def create_client(env: Mapping[str, str]) -> OpenSearch:
+    username = env.get("OPENSEARCH_USERNAME")
+    password = env.get("OPENSEARCH_PASSWORD")
+    return OpenSearch(
+        hosts=[{"host": env["OPENSEARCH_INSTANCE"], "port": int(env["OPENSEARCH_PORT"])}],
+        http_auth=(username, password) if username and password else None,
+        http_compress=True,
+        use_ssl=env_flag(env.get("OPENSEARCH_TLS_ENABLED"), True),
+        verify_certs=env_flag(env.get("OPENSEARCH_TLS_VERIFY_CERTS"), False),
+        ssl_assert_hostname=False,
+        ssl_show_warn=False,
     )
 
-    todaysDate = date.today()
 
-    if(getSnapshotRepository(os_client, snapshotRepository)):
-        # Snapshot repo exists, we can continue
-        print(len(getSnapshots(os_client, snapshotRepository)))
-        snapshotsCount = len(getSnapshots(os_client, snapshotRepository)["snapshots"])
-        if snapshotsCount > 0:
-            lastSnapshot = getSnapshotDetails(os_client, snapshotRepository, snapshotsCount - 1)
-            lastSnapshotYear="20" + lastSnapshot['date'][6:8]
-            lastSnapshotMonth=lastSnapshot['date'][0:2]
-            lastSnapshotDay=lastSnapshot['date'][3:5]
-            lastSnapshotDate=lastSnapshotYear + "-" + lastSnapshotMonth + "-" + lastSnapshotDay
-            lastSnapshotState=lastSnapshot['state']
-            if(lastSnapshotState == "SUCCESS" and lastSnapshotDate == str(todaysDate)):
-                print(f"The last snapshot was successfully executed today {todaysDate}.")
-            else:
-                logging.error("No snapshot has been successfully created today, please manually check the configuration!")
-                exit(1)
-        else:
-            logging.error("No snapshots found in the repository!")
-            exit(1)
-    else:
-        logging.error("The snapshot repository doesn't exist, please check the configuration!")
-        exit(1)
+def main() -> None:
+    instance = os.getenv("OPENSEARCH_INSTANCE")
+    port = os.getenv("OPENSEARCH_PORT")
+    repository = os.getenv("OPENSEARCH_SNAPSHOT_REPOSITORY")
+    if not instance or not port or not repository:
+        logging.error("At least one of the required environment variable is not set.")
+        sys.exit(1)
+
+    try:
+        client = create_client(os.environ)
+        snapshots = fetch_snapshots(client, repository)
+        message = check_snapshots(snapshots, datetime.now(timezone.utc).date())
+    except SnapshotCheckError as e:
+        logging.error(str(e))
+        sys.exit(1)
+    print(message)
+
 
 if __name__ == "__main__":
     main()
