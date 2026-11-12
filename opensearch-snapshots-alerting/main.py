@@ -14,6 +14,9 @@ logging.basicConfig(format=log_format, level=logging.ERROR)
 NO_SNAPSHOT_TODAY_MESSAGE = (
     "No snapshot has been successfully created today, please manually check the configuration!"
 )
+NO_SNAPSHOTS_MESSAGE = "No snapshots found in the repository!"
+REPOSITORY_NOT_FOUND_MESSAGE = "The repository {repository} wasn't found. Exiting."
+EXCEPTION_MESSAGE = "There was an exception: {error}. Exiting."
 
 
 class SnapshotCheckError(Exception):
@@ -31,15 +34,15 @@ def fetch_snapshots(client: OpenSearch, repository: str) -> list[dict[str, Any]]
         client.snapshot.get_repository(repository=repository)
         response = client.snapshot.get(repository=repository, snapshot="_all")
     except NotFoundError as e:
-        raise SnapshotCheckError(f"The repository {repository} wasn't found. Exiting.") from e
+        raise SnapshotCheckError(REPOSITORY_NOT_FOUND_MESSAGE.format(repository=repository)) from e
     except Exception as e:
-        raise SnapshotCheckError(f"There was an exception: {e}. Exiting.") from e
+        raise SnapshotCheckError(EXCEPTION_MESSAGE.format(error=e)) from e
     return response["snapshots"]
 
 
 def check_snapshots(snapshots: list[dict[str, Any]], today: date) -> str:
     if not snapshots:
-        raise SnapshotCheckError("No snapshots found in the repository!")
+        raise SnapshotCheckError(NO_SNAPSHOTS_MESSAGE)
 
     finished = [s for s in snapshots if s.get("end_time_in_millis")]
     if not finished:
@@ -82,7 +85,7 @@ def main() -> None:
         logging.error(str(e))
         sys.exit(1)
     except Exception as e:
-        logging.error(f"There was an exception: {e}. Exiting.")
+        logging.error(EXCEPTION_MESSAGE.format(error=e))
         sys.exit(1)
     print(message)
 
