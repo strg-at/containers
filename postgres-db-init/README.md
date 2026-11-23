@@ -17,20 +17,25 @@ database (schema) initialization helper
 
 ## ENV
 
-|                                  | Description                                    |
-| :------------------------------- | :--------------------------------------------- |
-| **POSTGRES_HOST**                | postgres host                                  |
-| **POSTGRES_SUPER_USER**          | postgres admin user                            |
-| **POSTGRES_SUPER_PASS**          | postgres admin password                        |
-| **POSTGRES_SUPER_DB**            | postgres admin db                              |
-| **POSTGRES_USER**                | postgres user                                  |
-| **POSTGRES_PASS**                | postgres password                              |
-| **POSTGRES_DB**                  | postgres database                              |
-| **POSTGRES_EXTENSION_UUID_OSSP** | create extension uuid-ossp (optional, boolean) |
-| **POSTGRES_EXTENSION_ANON**      | create extension anon (optional, boolean)      |
-| **POSTGRES_EXTENSION_VECTOR**    | create extension vector (optional, boolean)    |
+|                                  | Description                                     |
+| :------------------------------- | :---------------------------------------------- |
+| **POSTGRES_HOST**                | postgres host                                   |
+| **POSTGRES_SUPER_USER**          | postgres admin user                             |
+| **POSTGRES_SUPER_PASS**          | postgres admin password                         |
+| **POSTGRES_SUPER_DB**            | postgres admin db                               |
+| **POSTGRES_USER**                | postgres user                                   |
+| **POSTGRES_PASS**                | postgres password                               |
+| **POSTGRES_DB**                  | postgres database (space-separated for several) |
+| **POSTGRES_EXTENSION_UUID_OSSP** | create extension uuid-ossp (optional, boolean)  |
+| **POSTGRES_EXTENSION_ANON**      | create extension anon (optional, boolean)       |
+| **POSTGRES_EXTENSION_VECTOR**    | create extension vector (optional, boolean)     |
 
 | (\*) required
+
+### Errors
+
+The container stops at the first failing statement and exits non-zero. Values are passed to SQL as
+psql variables, so passwords and names may contain quotes, dashes or upper-case letters.
 
 ## How to test
 
