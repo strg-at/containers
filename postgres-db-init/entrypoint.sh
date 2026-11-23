@@ -18,10 +18,19 @@ until pg_isready --quiet; do
   sleep 1
 done
 
+# POSTGRES_EXTENSIONS (space- or comma-separated) plus the per-extension flags, deduplicated.
+ext_list="${POSTGRES_EXTENSIONS:-}"
+read -ra requested <<< "${ext_list//,/ }"
+[[ "${POSTGRES_EXTENSION_UUID_OSSP:-}" == "true" ]] && requested+=("uuid-ossp")
+[[ "${POSTGRES_EXTENSION_ANON:-}" == "true" ]] && requested+=("anon")
+[[ "${POSTGRES_EXTENSION_VECTOR:-}" == "true" ]] && requested+=("vector")
 extensions=()
-[[ "${POSTGRES_EXTENSION_UUID_OSSP:-}" == "true" ]] && extensions+=("uuid-ossp")
-[[ "${POSTGRES_EXTENSION_ANON:-}" == "true" ]] && extensions+=("anon")
-[[ "${POSTGRES_EXTENSION_VECTOR:-}" == "true" ]] && extensions+=("vector")
+declare -A seen=()
+for ext in "${requested[@]}"; do
+  [[ -n "${seen[${ext}]:-}" ]] && continue
+  seen[${ext}]=1
+  extensions+=("${ext}")
+done
 
 # Values reach SQL only as psql variables (:'literal', :"identifier") or through format(%I/%L),
 # never by string interpolation, so passwords and names with quotes or dashes are safe.
@@ -84,8 +93,13 @@ SQL
   for ext in "${extensions[@]}"; do
     target="${POSTGRES_EXTENSIONS_SCHEMA:-${POSTGRES_USER}}"
     log "ensure extension ${ext} in schema ${target} on ${init_db} ..."
+    # Extensions that fix their own schema (e.g. plpgsql) are created without WITH SCHEMA.
     psql_run --dbname="${init_db}" --set ext="${ext}" --set target="${target}" <<'SQL'
-CREATE EXTENSION IF NOT EXISTS :"ext" WITH SCHEMA :"target" CASCADE;
+SELECT format('CREATE EXTENSION IF NOT EXISTS %I%s CASCADE', :'ext',
+              CASE WHEN fixed IS NULL THEN format(' WITH SCHEMA %I', :'target') ELSE '' END)
+  FROM (SELECT (SELECT schema FROM pg_available_extension_versions
+                 WHERE name = :'ext' AND schema IS NOT NULL LIMIT 1) AS fixed) AS s
+\gexec
 SQL
     if [[ -n "${POSTGRES_EXTENSIONS_SCHEMA:-}" ]]; then
       # An extension created earlier elsewhere (e.g. in the service schema) is moved; dependent

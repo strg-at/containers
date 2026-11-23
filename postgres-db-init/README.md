@@ -26,13 +26,22 @@ database (schema) initialization helper
 | **POSTGRES_USER**                | postgres user                                                                               |
 | **POSTGRES_PASS**                | postgres password                                                                           |
 | **POSTGRES_DB**                  | postgres database (space-separated for several)                                             |
-| **POSTGRES_EXTENSION_UUID_OSSP** | create extension uuid-ossp (optional, boolean)                                              |
-| **POSTGRES_EXTENSION_ANON**      | create extension anon (optional, boolean)                                                   |
-| **POSTGRES_EXTENSION_VECTOR**    | create extension vector (optional, boolean)                                                 |
+| **POSTGRES_EXTENSIONS**          | extensions to create, space- or comma-separated, e.g. `vector uuid-ossp` (optional)         |
+| **POSTGRES_EXTENSION_UUID_OSSP** | create extension uuid-ossp (optional, boolean; same as listing it in POSTGRES_EXTENSIONS)   |
+| **POSTGRES_EXTENSION_ANON**      | create extension anon (optional, boolean; same as listing it in POSTGRES_EXTENSIONS)        |
+| **POSTGRES_EXTENSION_VECTOR**    | create extension vector (optional, boolean; same as listing it in POSTGRES_EXTENSIONS)      |
 | **POSTGRES_EXTENSIONS_SCHEMA**   | install extensions in this shared schema instead of the user's schema (optional, see below) |
 | **POSTGRES_SEARCH_PATH**         | comma-separated search_path for the user, e.g. `$user, extensions` (optional)               |
 
 | (\*) required
+
+### Extensions
+
+`POSTGRES_EXTENSIONS` and the per-extension flags are merged; each extension is created once with
+`CASCADE`. The extension must be installed on the server, otherwise the container fails. Extensions
+are only ever added: removing one from the list does not drop it. Extensions that need server
+configuration (e.g. `shared_preload_libraries` for `pg_stat_statements` or `anon`) still need that
+configured on the server.
 
 ### Shared extensions schema
 
