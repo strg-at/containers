@@ -30,6 +30,8 @@ psql_run() {
     --set user="${POSTGRES_USER}" \
     --set pass="${POSTGRES_PASS}" \
     --set super="${POSTGRES_SUPER_USER}" \
+    --set ext_schema="${POSTGRES_EXTENSIONS_SCHEMA:-}" \
+    --set search_path="${POSTGRES_SEARCH_PATH:-}" \
     "$@"
 }
 
@@ -43,6 +45,13 @@ SELECT format('GRANT %I TO %I', :'user', :'super')
  WHERE NOT (SELECT rolsuper FROM pg_roles WHERE rolname = :'super')
 \gexec
 SELECT format('ALTER ROLE %I WITH PASSWORD %L', :'user', :'pass')
+\gexec
+-- POSTGRES_SEARCH_PATH: comma-separated schemas, e.g. $user, extensions
+SELECT format('ALTER ROLE %I SET search_path TO %s', :'user',
+              string_agg(quote_ident(btrim(s, ' "')), ', ' ORDER BY ord))
+  FROM unnest(string_to_array(:'search_path', ',')) WITH ORDINALITY AS t(s, ord)
+ WHERE :'search_path' <> ''
+HAVING count(*) > 0
 \gexec
 SQL
 
@@ -61,11 +70,41 @@ SQL
 CREATE SCHEMA IF NOT EXISTS :"user" AUTHORIZATION :"user";
 SQL
 
-  for ext in "${extensions[@]}"; do
-    log "ensure extension ${ext} in schema ${POSTGRES_USER} on ${init_db} ..."
-    psql_run --dbname="${init_db}" --set ext="${ext}" <<'SQL'
-CREATE EXTENSION IF NOT EXISTS :"ext" WITH SCHEMA :"user" CASCADE;
+  if [[ -n "${POSTGRES_EXTENSIONS_SCHEMA:-}" ]]; then
+    # Shared schema owned by the admin role, not by a service: dropping a service schema can
+    # never take an extension (and the columns of other services that use its types) with it.
+    log "ensure shared schema ${POSTGRES_EXTENSIONS_SCHEMA} on ${init_db} ..."
+    psql_run --dbname="${init_db}" <<'SQL'
+CREATE SCHEMA IF NOT EXISTS :"ext_schema";
+REVOKE ALL ON SCHEMA :"ext_schema" FROM PUBLIC;
+GRANT USAGE ON SCHEMA :"ext_schema" TO :"user";
 SQL
+  fi
+
+  for ext in "${extensions[@]}"; do
+    target="${POSTGRES_EXTENSIONS_SCHEMA:-${POSTGRES_USER}}"
+    log "ensure extension ${ext} in schema ${target} on ${init_db} ..."
+    psql_run --dbname="${init_db}" --set ext="${ext}" --set target="${target}" <<'SQL'
+CREATE EXTENSION IF NOT EXISTS :"ext" WITH SCHEMA :"target" CASCADE;
+SQL
+    if [[ -n "${POSTGRES_EXTENSIONS_SCHEMA:-}" ]]; then
+      # An extension created earlier elsewhere (e.g. in the service schema) is moved; dependent
+      # columns and indexes follow it. Non-relocatable extensions stay where they are.
+      psql_run --dbname="${init_db}" --set ext="${ext}" <<'SQL'
+SELECT format('ALTER EXTENSION %I SET SCHEMA %I', extname, :'ext_schema')
+  FROM pg_extension
+ WHERE extname = :'ext' AND extrelocatable
+   AND extnamespace <> to_regnamespace(:'ext_schema')
+\gexec
+SELECT format('DO $w$ BEGIN RAISE WARNING %L; END $w$',
+              format('extension %s is not relocatable and stays in schema %s',
+                     extname, extnamespace::regnamespace))
+  FROM pg_extension
+ WHERE extname = :'ext' AND NOT extrelocatable
+   AND extnamespace <> to_regnamespace(:'ext_schema')
+\gexec
+SQL
+    fi
   done
 done
 

@@ -17,20 +17,32 @@ database (schema) initialization helper
 
 ## ENV
 
-|                                  | Description                                     |
-| :------------------------------- | :---------------------------------------------- |
-| **POSTGRES_HOST**                | postgres host                                   |
-| **POSTGRES_SUPER_USER**          | postgres admin user                             |
-| **POSTGRES_SUPER_PASS**          | postgres admin password                         |
-| **POSTGRES_SUPER_DB**            | postgres admin db                               |
-| **POSTGRES_USER**                | postgres user                                   |
-| **POSTGRES_PASS**                | postgres password                               |
-| **POSTGRES_DB**                  | postgres database (space-separated for several) |
-| **POSTGRES_EXTENSION_UUID_OSSP** | create extension uuid-ossp (optional, boolean)  |
-| **POSTGRES_EXTENSION_ANON**      | create extension anon (optional, boolean)       |
-| **POSTGRES_EXTENSION_VECTOR**    | create extension vector (optional, boolean)     |
+|                                  | Description                                                                                 |
+| :------------------------------- | :------------------------------------------------------------------------------------------ |
+| **POSTGRES_HOST**                | postgres host                                                                               |
+| **POSTGRES_SUPER_USER**          | postgres admin user                                                                         |
+| **POSTGRES_SUPER_PASS**          | postgres admin password                                                                     |
+| **POSTGRES_SUPER_DB**            | postgres admin db                                                                           |
+| **POSTGRES_USER**                | postgres user                                                                               |
+| **POSTGRES_PASS**                | postgres password                                                                           |
+| **POSTGRES_DB**                  | postgres database (space-separated for several)                                             |
+| **POSTGRES_EXTENSION_UUID_OSSP** | create extension uuid-ossp (optional, boolean)                                              |
+| **POSTGRES_EXTENSION_ANON**      | create extension anon (optional, boolean)                                                   |
+| **POSTGRES_EXTENSION_VECTOR**    | create extension vector (optional, boolean)                                                 |
+| **POSTGRES_EXTENSIONS_SCHEMA**   | install extensions in this shared schema instead of the user's schema (optional, see below) |
+| **POSTGRES_SEARCH_PATH**         | comma-separated search_path for the user, e.g. `$user, extensions` (optional)               |
 
 | (\*) required
+
+### Shared extensions schema
+
+By default extensions are created in the user's own schema, so dropping that schema also drops the
+extension and every column in other schemas that uses its types. With `POSTGRES_EXTENSIONS_SCHEMA`
+set, the schema is created owned by the admin user, `PUBLIC` loses its default access, and the user
+gets `USAGE` only. Extensions are created there, and an extension that already exists in another
+schema is moved there (`ALTER EXTENSION ... SET SCHEMA`; columns and indexes follow it). Extensions
+that are not relocatable stay where they are and only log a warning. Add the schema to
+`POSTGRES_SEARCH_PATH` so the user resolves the extension's types and functions.
 
 ### Errors
 
