@@ -18,7 +18,6 @@ until pg_isready --quiet; do
   sleep 1
 done
 
-# POSTGRES_EXTENSIONS (space- or comma-separated) plus the per-extension flags, deduplicated.
 ext_list="${POSTGRES_EXTENSIONS:-}"
 read -ra requested <<< "${ext_list//,/ }"
 [[ "${POSTGRES_EXTENSION_UUID_OSSP:-}" == "true" ]] && requested+=("uuid-ossp")
@@ -32,11 +31,7 @@ for ext in "${requested[@]}"; do
   extensions+=("${ext}")
 done
 
-# Values reach SQL only as psql variables (:'literal', :"identifier") or through format(%I/%L),
-# never by string interpolation, so passwords and names with quotes or dashes are safe.
-# Every session first takes a session-level advisory lock, so db-init containers of several services
-# starting at once take turns instead of failing on shared objects (e.g. "tuple concurrently
-# updated" on GRANT ... ON DATABASE). The lock is released when the session ends.
+# advisory lock per session: concurrent db-init runs take turns on shared objects
 psql_run() {
   {
     echo "SELECT pg_advisory_lock(hashtext('strg-at/postgres-db-init')) \\gset"
@@ -55,13 +50,12 @@ psql_run <<'SQL'
 SELECT format('CREATE ROLE %I LOGIN', :'user')
  WHERE NOT EXISTS (SELECT FROM pg_roles WHERE rolname = :'user')
 \gexec
--- A non-superuser admin (e.g. Cloud SQL) needs membership to create the role's schema.
+-- non-superuser admins (Cloud SQL) need membership to create the role's schema
 SELECT format('GRANT %I TO %I', :'user', :'super')
  WHERE NOT (SELECT rolsuper FROM pg_roles WHERE rolname = :'super')
 \gexec
 SELECT format('ALTER ROLE %I WITH PASSWORD %L', :'user', :'pass')
 \gexec
--- POSTGRES_SEARCH_PATH: comma-separated schemas, e.g. $user, extensions
 SELECT format('ALTER ROLE %I SET search_path TO %s', :'user',
               string_agg(quote_ident(btrim(s, ' "')), ', ' ORDER BY ord))
   FROM unnest(string_to_array(:'search_path', ',')) WITH ORDINALITY AS t(s, ord)
@@ -86,8 +80,6 @@ CREATE SCHEMA IF NOT EXISTS :"user" AUTHORIZATION :"user";
 SQL
 
   if [[ -n "${POSTGRES_EXTENSIONS_SCHEMA:-}" ]]; then
-    # Shared schema owned by the admin role, not by a service: dropping a service schema can
-    # never take an extension (and the columns of other services that use its types) with it.
     log "ensure shared schema ${POSTGRES_EXTENSIONS_SCHEMA} on ${init_db} ..."
     psql_run --dbname="${init_db}" <<'SQL'
 CREATE SCHEMA IF NOT EXISTS :"ext_schema";
@@ -99,7 +91,6 @@ SQL
   for ext in "${extensions[@]}"; do
     target="${POSTGRES_EXTENSIONS_SCHEMA:-${POSTGRES_USER}}"
     log "ensure extension ${ext} in schema ${target} on ${init_db} ..."
-    # Extensions that fix their own schema (e.g. plpgsql) are created without WITH SCHEMA.
     psql_run --dbname="${init_db}" --set ext="${ext}" --set target="${target}" <<'SQL'
 SELECT format('CREATE EXTENSION IF NOT EXISTS %I%s CASCADE', :'ext',
               CASE WHEN fixed IS NULL THEN format(' WITH SCHEMA %I', :'target') ELSE '' END)
@@ -108,8 +99,6 @@ SELECT format('CREATE EXTENSION IF NOT EXISTS %I%s CASCADE', :'ext',
 \gexec
 SQL
     if [[ -n "${POSTGRES_EXTENSIONS_SCHEMA:-}" ]]; then
-      # An extension created earlier elsewhere (e.g. in the service schema) is moved; dependent
-      # columns and indexes follow it. Non-relocatable extensions stay where they are.
       psql_run --dbname="${init_db}" --set ext="${ext}" <<'SQL'
 SELECT format('ALTER EXTENSION %I SET SCHEMA %I', extname, :'ext_schema')
   FROM pg_extension
