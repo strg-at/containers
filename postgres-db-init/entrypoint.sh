@@ -34,8 +34,14 @@ done
 
 # Values reach SQL only as psql variables (:'literal', :"identifier") or through format(%I/%L),
 # never by string interpolation, so passwords and names with quotes or dashes are safe.
+# Every session first takes a session-level advisory lock, so db-init containers of several services
+# starting at once take turns instead of failing on shared objects (e.g. "tuple concurrently
+# updated" on GRANT ... ON DATABASE). The lock is released when the session ends.
 psql_run() {
-  psql --no-psqlrc --quiet --set ON_ERROR_STOP=1 \
+  {
+    echo "SELECT pg_advisory_lock(hashtext('strg-at/postgres-db-init')) \\gset"
+    cat
+  } | psql --no-psqlrc --quiet --set ON_ERROR_STOP=1 \
     --set user="${POSTGRES_USER}" \
     --set pass="${POSTGRES_PASS}" \
     --set super="${POSTGRES_SUPER_USER}" \
